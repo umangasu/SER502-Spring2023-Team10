@@ -1,6 +1,6 @@
 Project Contributions for Milestone 1:
 
-Sambhav Kapoor : Analyzed parsing tecnqiues and designed grammar of the language.
+Sambhav Kapoor : Analyzed parsing technqiues and designed grammar of the language.
 Sanket Surendra Kapse : Analyzed parsing tecnhiques and designed grammar of the language.
 Soham Prabhakar Patil: Worked on documentation and grammar of the language.
 Sanika Yatin Gandhe: Added documentation and analyzed tokenization tecnhiques for the project.
