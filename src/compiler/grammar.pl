@@ -39,3 +39,10 @@ variable --> assignment.
 % <variable1> ::= <variable> "," <variable1> | <variable>
 variable1 --> variable, ",", variable1.
 variable1 --> variable.
+
+% <output> ::= "print" "(" <expression1> ")"
+% <expression1> ::= <expression> "," <expression1> | <expression
+
+output --> [print], ['('], expression, [')'].
+expression1 --> expression, [,], expression1.
+expression1 --> expression.
