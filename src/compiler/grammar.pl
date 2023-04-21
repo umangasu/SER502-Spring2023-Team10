@@ -40,6 +40,52 @@ variable --> assignment.
 variable1 --> variable, ",", variable1.
 variable1 --> variable.
 
+
+% <if_statement> ::= "if" "(" <condition> ")" "{" <block> "}" | <if_statement1>
+% <if_statement1> ::= ""
+% <if_statement1> ::= "else" "{" <block> "}"
+% <if_statement1> ::= "else" <if_statement>
+
+if_statement --> [if], ['('], condition, [')'], ['{'], block, ['}'].
+if_statement --> if_statement1.
+if_statement1 --> [].
+if_statement1 --> [else], ['{'], block, ['}'].
+if_statement1 --> [else], if_statement.
+
+
+% <condition> ::= <expression> <relation_op> <expression>
+% <condition> ::= <expression> <logical_op> <expression>
+
+condition --> expression, relation_op, expression.
+condition --> expression, logical_op, expression.
+
+
+% <relation_op> ::= "<" | "<=" | ">" | ">=" | "==" | "!="
+% <logical_op> ::= "&&" | "||"
+
+relation_op --> [<].
+relation_op --> [<=].
+relation_op --> [>].
+relation_op --> [>=].
+relation_op --> [==].
+relation_op --> [!=].
+
+logical_op --> [&&].
+logical_op --> [||].
+
+
+% <while_loop> ::= "while" "(" <condition> ")" "{" <block> "}"
+% <for_loop> ::= "for" "(" <identifier> "=" <for_integer> ";" <condition> ";" <expression> ")" "{" <block> "}"
+% <for_range> ::= "for" <identifier> "in" "range" "(" <for_integer> "," <for_integer> ")" "{" <block> "}"
+% <for_integer> ::= <integer> | <identifier>
+
+while_loop --> [while], ['('], condition, [')'], ['{'], block, ['}'].
+for_loop --> [for], ['('], identifier, [=], for_integer, [;], condition, [;], expression, [')'], ['{'], block, ['}'].
+for_range --> [for], identifier, [in], [range], ['('], for_integer, [,], for_integer, [')'], ['{'], block, ['}'].
+for_integer --> integer.
+for_integer --> identifier.
+
+
 % <output> ::= "print" "(" <expression1> ")"
 % <expression1> ::= <expression> "," <expression1> | <expression
 
