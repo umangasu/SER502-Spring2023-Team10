@@ -40,6 +40,50 @@ variable --> assignment.
 variable1 --> variable, ",", variable1.
 variable1 --> variable.
 
+% <assignment> ::= <identifier> "=" <expression> | <identifier> "=" <ternary>
+assignment --> identifier, [=], expression.
+assignment --> identifier, [=], ternary.
+
+% <identifier> ::= ^[_a-zA-Z][_a-zA-Z0-9]*
+% <string> ::= "'" [a-zA-Z0-9_@!.,\s]* "'"
+% <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+% <integer> ::= <digit> | <digit> <integer>
+% <float> ::= <integer> "." <integer>
+% <bool> ::= True | False | "!" <bool> | <condition>
+identifier --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
+string --> [S], {atom(S)}.
+integer --> [N], {integer(N)}.
+float --> [F], {float(F)}.
+boolean --> [true] | [false].
+boolean --> [!], boolean.
+boolean --> condition.
+
+% <ternary> ::= <condition> "?" <expression> ":" <expression>
+ternary --> condition, [?], expression, [:], expression.
+
+% <expression> ::= <expression> + <expression> | <expression> - <expression>  
+% | <expression> * <expression> | <expression> / <expression>
+% | (<expression>) | <integer> | <float> | <identifier> | <identifier> "++" 
+% | <identifier> "--" | <string> | <booleam>
+
+expression --> expression, [+], term.
+expression --> expression, [-], term.
+expression --> term.
+
+term --> term, [*], factor.
+term --> term, [/], factor.
+term --> factor.
+
+factor --> integer.
+factor --> float.
+factor --> string.
+factor --> boolean.
+
+factor --> identifier.
+factor --> identifier, [++].
+factor --> identifier, [--].
+
+factor --> ['('], expression, [')'].
 
 % <if_statement> ::= "if" "(" <condition> ")" "{" <block> "}" | <if_statement1>
 % <if_statement1> ::= ""
