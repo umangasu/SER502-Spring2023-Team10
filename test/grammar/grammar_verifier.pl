@@ -1,6 +1,8 @@
 :- include('../../src/compiler/grammar.pl').
 
 test_case(1, [program, '{', '}'], []).
+test_case(2, [program, '{', int, x, ;,'}'], []).
+test_case(3, [program, '{', int, x, =, 8, ;, int, y, ;, int, z, ;, z, =, 0, ;, '}'], []).
 
 run(Case) :-
     test_case(Case, Tokens, Expected),
