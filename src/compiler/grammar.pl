@@ -140,6 +140,8 @@ expression1 --> expression.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 program(t_program(program, '{', Block, '}')) --> [program], ['{'], block(Block), ['}'].
+program(t_program(program, '{', '}')) --> [program], ['{'], ['}'].
+
 
 block(t_block(Statement)) --> statement(Statement).
 block(t_block(Block, Statement)) --> block(Block), statement(Statement).
