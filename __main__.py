@@ -14,10 +14,9 @@ def main():
         print('Select the index of the file you want to execute: \n')
         for executable in range(len(executables)):
             print(f"""[{executable}] {executables[executable]}""")
-        filename = int(input())
-        executable_path = f"{ROOT_DIRECTORY}/data/{executables[filename]}"
-        print(executable_path)
-        tokenize(executable_path)
+        fileindex = int(input())
+        print(executables[fileindex])
+        tokenize(executables[fileindex])
 
     except KeyboardInterrupt:
         try:

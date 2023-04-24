@@ -39,7 +39,7 @@ tokenized_output = []
 
 # Define the function to tokenize the input string
 def tokenize(filename):
-    with open(os.path.dirname(__file__) + '/../../data/' + filename + '.eva') as file:
+    with open(os.path.dirname(__file__) + '/../../data/' + filename) as file:
         program = file.read()
     text_file = open("sample.txt", "w")
     # Combine the regular expressions into a single pattern
@@ -55,16 +55,3 @@ def tokenize(filename):
     text_file.write(''.join(tokenized_output))
 
     return tokenized_output
-
-
-# print('Tokens for program 1 : ', ''.join(tokenize("program1")))
-# for token in tokenize("program1"):
-#     print(token)
-#
-# print('Tokens for program 2 :')
-# for token in tokenize("program2"):
-#     print(token)
-#
-# print('Tokens for program 3 :')
-# for token in tokenize("program3"):
-#     print(token)

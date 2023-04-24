@@ -1,6 +1,6 @@
 import os.path
 
-with open(os.path.dirname(__file__) + '/../../data/dummy.eva') as file:
+with open(os.path.dirname(__file__) + '/../../data/program1.eva') as file:
     code = file.read()
 
 lines = code.split('\n')
