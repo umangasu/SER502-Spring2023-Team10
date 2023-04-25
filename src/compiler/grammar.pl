@@ -133,9 +133,13 @@ for_integer --> identifier.
 % <output> ::= "print" "(" <expression1> ")"
 % <expression1> ::= <expression> "," <expression1> | <expression
 
-print_statement --> [print], ['('], expression1, [')'].
-expression1 --> expression, [','], expression1.
-expression1 --> expression.
+print_statement --> [print], ['('], print_values, [')'].
+print_values --> string, [','], print_values.
+print_values --> identifier, [','], print_values.
+print_values --> integer, [','], print_values.
+print_values --> integer.
+print_values --> string.
+print_values --> identifier.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -148,6 +152,7 @@ block(t_block(Block, Statement)) --> block(Block), statement(Statement).
 
 statement(t_statement(Declaration, ;)) --> declaration(Declaration), [;].
 statement(t_statement(Assignment, ;)) --> assignment(Assignment), [;].
+statement(t_statement(PrintStatement, [;])) --> print_statement(PrintStatement), [;].
 
 declaration(t_declaration(Type, Variable)) --> type(Type), variable(Variable).
 declaration(t_declaration(Type, Variable, ',', Variable1)) --> type(Type), variable(Variable), [','], variable1(Variable1).
@@ -175,9 +180,19 @@ boolean(t_boolean(true, false)) --> [true] | [false].
 boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
 
 
+expression(t_expression(Expression, +, Term)) --> expression(Expression), [+], term(Term).
 expression(t_expression(Term)) --> term(Term).
+
 term(t_term(Factor)) --> factor(Factor).
 factor(t_factor(Integer)) --> integer(Integer).
 factor(t_factor(Float)) --> float(Float).
 factor(t_factor(String)) --> string(String).
 factor(t_factor(Boolean)) --> boolean(Boolean).
+
+print_statement(t_print_statement(print, '(', PrintValues, ')')) --> [print], ['('], print_values(PrintValues), [')'].
+print_values(t_print_values(String, ',', PrintValues)) --> string(String), [','], print_values(PrintValues).
+print_values(t_print_values(Identifier, ',', PrintValues)) --> identifier(Identifier), [','], print_values(PrintValues).
+print_values(t_print_values(Integer, ',', PrintValues)) --> integer(Integer), [','], print_values(PrintValues).
+print_values(t_print_values(Integer)) --> integer(Integer).
+print_values(t_print_values(String)) --> string(String).
+print_values(t_print_values(Identifier)) --> identifier(Identifier).
