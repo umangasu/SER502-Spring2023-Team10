@@ -4,12 +4,15 @@ import re
 # Define the regular expressions for each token
 tokens = [
     ('INT', r'\bint\b'),
+    ('FLOAT', r'\bfloat\b'),
+    ('STRING', r'\bstring\b'),
     ('IF', r'\bif\b'),
     ('ELSE', r'\belse\b'),
     ('WHILE', r'\bwhile\b'),
     ('FOR', r'\bfor\b'),
     ('IN', r'\bin\b'),
     ('RANGE', r'\brange\b'),
+    ('PRINTEXP', r'print\s*\(\s*("[^"]*"|\'[^\']*\'|[^\)]*)\s*\)'),
     ('PRINT', r'\bprint\b'),
     ('EQ', r'=='),
     ('LE', r'<='),
@@ -59,16 +62,16 @@ def tokenize(filename):
         # Ignore whitespace tokens
         if token_type == 'WHITESPACE':
             continue
-        elif token_type == 'PRINT':
-            print_match = re.match(r'print\s*\(', token_value)
-            if print_match:
-                print_text = re.search(tokens[-1][1], program[match.end():])
-                if print_text:
-                    token_value += print_text.group()
-                    match = re.match(pattern, token_value)
-                    token_type = match.lastgroup
-                    token_value = match.group()
+        elif token_type == 'PRINTEXP':
+            print_value = token_value[6:len(token_value) - 1].split(',')
+            print('print value : ', print_value)
+            tokenized_output.append('\'' + "print" + '\'\n' + '\'' + "(" + '\'\n')
+            for value in print_value:
+                tokenized_output.append('\'' + value.strip() + '\'\n')
+            tokenized_output.append('\'' + ")" + '\'\n')
+            continue
         tokenized_output.append('\'' + token_value + '\'\n')
+    tokenized_output.pop()
     text_file.write(''.join(tokenized_output))
 
     return tokenized_output
