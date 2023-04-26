@@ -103,7 +103,7 @@ if_statement1 --> [else], if_statement.
 
 condition --> expression, relation_op, expression.
 condition --> condition, logical_op, condition.
-
+condition --> boolean.
 
 % <relation_op> ::= "<" | "<=" | ">" | ">=" | "==" | "!="
 % <logical_op> ::= "&&" | "||"
@@ -182,7 +182,8 @@ identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, e
 string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
 integer(t_integer(N)) --> [N], {integer(N)}.
 float(t_float(F)) --> [F], {float(F)}.
-boolean(t_boolean(true, false)) --> [true] | [false].
+boolean(t_boolean(true)) --> [true].
+boolean(t_boolean(false)) --> [false].
 boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
 
 ternary(t_ternary(Condition, Expression1, Expression2)) --> condition(Condition), [?], expression(Expression1), [:], expression(Expression2).
@@ -209,6 +210,7 @@ if_statement1(t_if_statement1(else, IfStatement)) --> [else], if_statement(IfSta
 
 condition(t_condition(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
 condition(t_condition(Condition1, LogicalOp, Condition1)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition1).
+condition(t_condition(Boolean)) --> boolean(Boolean).
 
 relation_op(t_relation_op(<)) --> [<].
 relation_op(t_relation_op(<=)) --> [<=].
