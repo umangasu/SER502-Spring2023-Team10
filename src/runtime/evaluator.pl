@@ -30,7 +30,7 @@ assignment(t_assignment(Identifier, =, Expression)) --> identifier(Identifier), 
 
 
 identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
-string(t_string(S)) --> [S], {atom(S)}.
+string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
 integer(t_integer(N)) --> [N], {integer(N)}.
 float(t_float(F)) --> [F], {float(F)}.
 boolean(t_boolean(true, false)) --> [true] | [false].
@@ -62,8 +62,8 @@ print_values(t_print_values(Identifier)) --> identifier(Identifier).
 %% Environment Operations code used from Assignment 3 of Sanket Kapse %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Environment Operations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-lookup(V, [(V, Val) | _], Val). 
-lookup(V, [(V1, _) | T], Val) :-
+lookup(V, [(_DataType, V, Val) | _], Val). 
+lookup(V, [(_DataType, V1, _) | T], Val) :-
     V1 \= V,
     lookup(V, T, Val).
 lookup(V, [], _) :- 
@@ -71,16 +71,35 @@ lookup(V, [], _) :-
     fail.
 
 
-update(V, NewVal, [], [(V, NewVal)]).
-update(V, NewVal, [(V, _) | TEnv], [(V, NewVal) | TEnv]).
-update(V, NewVal, [HEnv | TEnv], [HEnv | TNewEnv]) :-
-    (V, _) \= HEnv,
-    update(V, NewVal, TEnv, TNewEnv).
+update(DataType, V, NewVal, [], [(DataType, V, NewVal)]).
+update(DataType, V, NewVal, [(DataType, V, _) | TEnv], [(DataType, V, NewVal) | TEnv]).
+update(DataType, V, NewVal, [HEnv | TEnv], [HEnv | TNewEnv]) :-
+    (DataType, V, _) \= HEnv,
+    update(DataType, V, NewVal, TEnv, TNewEnv).
 
 check_in_env(V, [(V, _) | _]). 
 check_in_env(V, [(V1, _) | T]) :-
     V1 \= V,
     check_in_env(V, T).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Semantics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+program_eval(t_program(program, '{', Block, '}'), XDataType, X, YDataType, Y, Z) :-
+    update(XDataType, x, X, [], Env),
+    update(YDataType, y, Y, Env, NEnv),
+    eval_block(Block, NEnv, NewEnv),
+    lookup(z, NewEnv, Z).
 
 
+eval_block(t_block(Statement), NEnv, NewEnv)
+eval_block(t_block(Statement), NEnv, NewEnv)
+
+
+eval_identifier(t_identifier(I), Env, Val) :- lookup(I, Env, Val).
+
+eval_string(t_string(S), S).
+eval_integer(t_integer(I), I).
+eval_float(t_float(F), F).
+
+eval_boolean(t_boolean(true), _, _, true).
+eval_boolean(t_boolean(false), _, _, false).
