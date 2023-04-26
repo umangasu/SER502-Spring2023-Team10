@@ -28,6 +28,8 @@ tokens = [
     ('RPAREN', r'\)'),
     ('ID', r'[a-zA-Z_]\w*'),
     ('NUM', r'\d+'),
+    ('INC', r'\++'),
+    ('DEC', r'\--'),
     ('PLUS', r'\+'),
     ('MINUS', r'-'),
     ('MUL', r'\*'),
@@ -36,7 +38,8 @@ tokens = [
     ('COMMA', r','),
     ('FORLOOP', r'for\s*\('),
     ('RANGELOOP', r'range\s*\('),
-    ('WHITESPACE', r'\s+')
+    ('WHITESPACE', r'\s+'),
+    ('PRINT_TEXT', r'("[^"]*"|\'[^\']*\'|[^\)]*)')
 ]
 
 tokenized_output = []
@@ -56,6 +59,15 @@ def tokenize(filename):
         # Ignore whitespace tokens
         if token_type == 'WHITESPACE':
             continue
+        elif token_type == 'PRINT':
+            print_match = re.match(r'print\s*\(', token_value)
+            if print_match:
+                print_text = re.search(tokens[-1][1], program[match.end():])
+                if print_text:
+                    token_value += print_text.group()
+                    match = re.match(pattern, token_value)
+                    token_type = match.lastgroup
+                    token_value = match.group()
         tokenized_output.append('\'' + token_value + '\'\n')
     text_file.write(''.join(tokenized_output))
 
