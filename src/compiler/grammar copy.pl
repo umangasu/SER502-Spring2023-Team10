@@ -105,7 +105,7 @@ if_statement1 --> [else], if_statement.
 % <condition> ::= <expression> <logical_op> <expression>
 
 condition --> expression, relation_op, expression.
-condition --> expression, logical_op, expression.
+condition --> condition, logical_op, condition.
 
 
 % <relation_op> ::= "<" | "<=" | ">" | ">=" | "==" | "!="
@@ -137,9 +137,13 @@ for_integer --> identifier.
 % <output> ::= "print" "(" <expression1> ")"
 % <expression1> ::= <expression> "," <expression1> | <expression
 
-print_statement --> [print], ['('], expression1, [')'].
-expression1 --> expression, [','], expression1.
-expression1 --> expression.
+print_statement --> [print], ['('], print_values, [')'].
+print_values --> string, [','], print_values.
+print_values --> identifier, [','], print_values.
+print_values --> integer, [','], print_values.
+print_values --> integer.
+print_values --> string.
+print_values --> identifier.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -211,7 +215,7 @@ factor(t_factor('(', Expression, ')')) --> ['('], expression(Expression), [')'].
 % if_statement1(t_if_statement1(else, IfStatement)) --> [else], if_statement(IfStatement).
 
 % condition(t_condition(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
-% condition(t_condition(Expression1, LogicalOp, Expression2)) --> expression(Expression1), logical_op(LogicalOp), expression(Expression2).
+% condition(t_condition(Condition1, LogicalOp, Condition1)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition1).
 
 % relation_op(t_relation_op(<)) --> [<].
 % relation_op(t_relation_op(<=)) --> [<=].
