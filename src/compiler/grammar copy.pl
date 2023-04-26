@@ -186,11 +186,11 @@ assignment(t_assignment(Identifier, =, Ternary)) --> identifier(Identifier), [=]
 ternary(t_ternary(Condition, Expression1, Expression2)) --> condition(Condition), [?], expression(Expression1), [:], expression(Expression2).
 
 # expression(t_expression(Expression, +, Term)) --> expression(Expression), [+], term(Term).
-expression(t_expression(Expression, -, Term)) --> expression(Expression), [-], term(Term).
+# expression(t_expression(Expression, -, Term)) --> expression(Expression), [-], term(Term).
 # expression(t_expression(Term)) --> term(Term).
 
-term(t_term(Term, *, Factor)) --> term(Term), [*], factor(Factor).
-term(t_term(Term, /, Factor)) --> term(Term), [/], factor(Factor).
+# term(t_term(Term, *, Factor)) --> term(Term), [*], factor(Factor).
+# term(t_term(Term, /, Factor)) --> term(Term), [/], factor(Factor).
 # term(t_term(Factor)) --> factor(Factor).
 
 # factor(t_factor(Integer)) --> integer(Integer).
@@ -198,7 +198,7 @@ term(t_term(Term, /, Factor)) --> term(Term), [/], factor(Factor).
 # factor(t_factor(String)) --> string(String).
 # factor(t_factor(Boolean)) --> boolean(Boolean).
 
-factor(t_factor(Identifier)) --> identifier(Identifier).
+# factor(t_factor(Identifier)) --> identifier(Identifier).
 factor(t_factor(Identifier, ++)) --> identifier(Identifier), [++].
 factor(t_factor(Identifier, --)) --> identifier(Identifier), [--].
 

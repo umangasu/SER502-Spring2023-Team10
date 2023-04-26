@@ -173,26 +173,29 @@ assignment(t_assignment(Identifier, =, Expression)) --> identifier(Identifier), 
 
 
 identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
-string(t_string(S)) --> [S], {atom(S)}.
+string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
 integer(t_integer(N)) --> [N], {integer(N)}.
 float(t_float(F)) --> [F], {float(F)}.
 boolean(t_boolean(true, false)) --> [true] | [false].
 boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
 
-
 expression(t_expression(Expression, +, Term)) --> expression(Expression), [+], term(Term).
+expression(t_expression(Expression, -, Term)) --> expression(Expression), [-], term(Term).
 expression(t_expression(Term)) --> term(Term).
 
+term(t_term(Term, *, Factor)) --> term(Term), [*], factor(Factor).
+term(t_term(Term, /, Factor)) --> term(Term), [/], factor(Factor).
 term(t_term(Factor)) --> factor(Factor).
-factor(t_factor(Integer)) --> integer(Integer).
-factor(t_factor(Float)) --> float(Float).
-factor(t_factor(String)) --> string(String).
-factor(t_factor(Boolean)) --> boolean(Boolean).
+factor(Integer) --> integer(Integer).
+factor(Float) --> float(Float).
+factor(Boolean) --> boolean(Boolean).
+factor(String) --> string(String).
+factor(Identifier) --> identifier(Identifier).
 
 print_statement(t_print_statement(print, '(', PrintValues, ')')) --> [print], ['('], print_values(PrintValues), [')'].
-print_values(t_print_values(String, ',', PrintValues)) --> string(String), [','], print_values(PrintValues).
 print_values(t_print_values(Identifier, ',', PrintValues)) --> identifier(Identifier), [','], print_values(PrintValues).
+print_values(t_print_values(String, ',', PrintValues)) --> string(String), [','], print_values(PrintValues).
 print_values(t_print_values(Integer, ',', PrintValues)) --> integer(Integer), [','], print_values(PrintValues).
 print_values(t_print_values(Integer)) --> integer(Integer).
-print_values(t_print_values(String)) --> string(String).
 print_values(t_print_values(Identifier)) --> identifier(Identifier).
+print_values(t_print_values(String)) --> string(String).
