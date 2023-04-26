@@ -146,13 +146,13 @@ print_values --> identifier.
 program(t_program(program, '{', Block, '}')) --> [program], ['{'], block(Block), ['}'].
 program(t_program(program, '{', '}')) --> [program], ['{'], ['}'].
 
-
 block(t_block(Statement)) --> statement(Statement).
 block(t_block(Block, Statement)) --> block(Block), statement(Statement).
 
 statement(t_statement(Declaration, ;)) --> declaration(Declaration), [;].
 statement(t_statement(Assignment, ;)) --> assignment(Assignment), [;].
 statement(t_statement(PrintStatement, [;])) --> print_statement(PrintStatement), [;].
+statement(t_statement(IfStatement)) --> if_statement(IfStatement).
 
 declaration(t_declaration(Type, Variable)) --> type(Type), variable(Variable).
 declaration(t_declaration(Type, Variable, ',', Variable1)) --> type(Type), variable(Variable), [','], variable1(Variable1).
@@ -191,6 +191,24 @@ factor(Float) --> float(Float).
 factor(Boolean) --> boolean(Boolean).
 factor(String) --> string(String).
 factor(Identifier) --> identifier(Identifier).
+
+if_statement(t_if_statement(if, '(', Condition, ')', '{', Block, '}', IfStatement1)) --> [if], ['('], condition(Condition), [')'], ['{'], block(Block), ['}'], if_statement1(IfStatement1).
+if_statement1(t_if_statement1()) --> [].
+if_statement1(t_if_statement1(else, '{', Block, '}')) --> [else], ['{'], block(Block), ['}'].
+if_statement1(t_if_statement1(else, IfStatement)) --> [else], if_statement(IfStatement).
+
+condition(t_condition(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
+condition(t_condition(Expression1, LogicalOp, Expression2)) --> expression(Expression1), logical_op(LogicalOp), expression(Expression2).
+
+relation_op(t_relation_op(<)) --> [<].
+relation_op(t_relation_op(<=)) --> [<=].
+relation_op(t_relation_op(>)) --> [>].
+relation_op(t_relation_op(>=)) --> [>=].
+relation_op(t_relation_op(==)) --> [==].
+relation_op(t_relation_op('!=')) --> ['!='].
+
+logical_op(t_logical_op('&&')) --> ['&&'].
+logical_op(t_logical_op('||')) --> ['||'].
 
 print_statement(t_print_statement(print, '(', PrintValues, ')')) --> [print], ['('], print_values(PrintValues), [')'].
 print_values(t_print_values(Identifier, ',', PrintValues)) --> identifier(Identifier), [','], print_values(PrintValues).
