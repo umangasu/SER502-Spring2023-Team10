@@ -8,7 +8,7 @@ print(n1);
 print(n2);
 for(int i=0;i <= n;i++)
 {
-print("next : ", next);
+print("next :", next);
 n1=n2;
 n2=next;
 next = n1+n2;
