@@ -32,9 +32,10 @@ print_values(t_print_identifier(Identifier)) --> identifier(Identifier).
 
 
 eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
-eval_print_values(t_print_values(t_print_identifier(I), PrintValues)) :- 
+eval_print_values(t_print_values(t_print_identifier(I), PrintValues), Env) :-
+    % eval_identifier(I, Env, IVal), write(IVal), 
     eval_print_values(t_print_identifier(I), Env),
-    write(" "),
+    write(" "), 
     eval_print_values(PrintValues , Env).
 eval_print_values(t_print_values(t_print_int(t_integer(N)), PrintValues), Env) :-
     write(N), 
