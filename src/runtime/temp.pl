@@ -1,7 +1,10 @@
 :- table block/3.
+
 :- table expression/3.
 :- table term/3.
 :- table factor/3.
+
+:- table condition/3.
 
 lookup(V, [(_DataType, V, Val) | _], Val). 
 lookup(V, [(_DataType, V1, _) | T], Val) :-
@@ -55,7 +58,7 @@ variable(t_var_id(Identifier)) --> identifier(Identifier).
 
 % Assignment Tree
 assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
-% assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
+assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
 assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
 assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
 
@@ -70,7 +73,7 @@ string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
 % boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
 
 % Ternary Tree
-
+ternary(t_ternary(Condition, Expression1, Expression2)) --> condition(Condition), [?], expression(Expression1), [:], expression(Expression2).
 
 % Expression Tree
 expression(t_add(Expression, Term)) --> expression(Expression), [+], term(Term).
@@ -84,6 +87,24 @@ term(Factor) --> factor(Factor).
 factor(Integer) --> integer(Integer).
 factor(Identifier) --> identifier(Identifier).
 factor(t_par('(', Expression, ')')) --> ['('], expression(Expression), [')'].
+
+% Condition Tree 
+condition(t_cond_expr(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
+condition(t_cond_cond(Condition1, LogicalOp, Condition2)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition2).
+
+
+% Relation Tree
+relation_op(<) --> [<].
+relation_op(<=) --> [<=].
+relation_op(>) --> [>].
+relation_op(>=) --> [>=].
+relation_op(==) --> [==].
+relation_op('!') --> ['!='].
+
+% Logical Tree
+logical_op('&&') --> ['&&'].
+logical_op('||') --> ['||'].
+
 
 
 % Print Tree
@@ -139,11 +160,11 @@ eval_assign(t_assign_expr(Identifier, Expression), Env, NewEnv) :-
     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
 
-% eval_assign(t_assign_ternary(Identifier, Ternary), Env, NewEnv) :-
-%     get_identifier(Identifier, I),
-%     eval_ternary(Ternary, Env, Val),
-%     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
-%     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
+eval_assign(t_assign_ternary(Identifier, Ternary), Env, NewEnv) :-
+    get_identifier(Identifier, I),
+    eval_ternary(Ternary, Env, Val),
+    ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
+    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
                            
 eval_assign(t_assign_plus(Identifier), Env, NewEnv) :-
     get_identifier(Identifier, I),
@@ -163,6 +184,15 @@ get_identifier(t_identifier(I), I).
 %
 eval_integer(t_integer(N), N).
 
+% Ternary Evaluator
+
+eval_ternary(t_ternary(Condition, Expression1, _), Env, ReturnVal) :-
+    eval_condition(Condition, Env, true),
+    eval_expr(Expression1, Env, ReturnVal).
+
+eval_ternary(t_ternary(Condition, _, Expression2), Env, ReturnVal) :-
+    eval_condition(Condition, Env, false),
+    eval_expr(Expression2, Env, ReturnVal).
 
 % Expression Evaluator
 eval_expr(t_add(Expression, Term), Env, Val) :-
@@ -201,6 +231,53 @@ eval_factor(t_integer(N), _, N) :- eval_integer(t_integer(N), N).
 eval_factor(Identifier, Env, Val) :- eval_identifier(Identifier, Env, Val).
 eval_factor(t_par('(', Expression, ')'), Env, Val) :- eval_expr(Expression, Env, Val).
 
+% Condition Evaluator
+
+eval_condition(t_cond_cond(Condition1, '&&', Condition2), Env, false) :-
+    eval_condition(Condition1, Env, false);
+    eval_condition(Condition2, Env, false).
+
+eval_condition(t_cond_cond(Condition1, '&&', Condition2), Env, true) :-
+    eval_condition(Condition1, Env, true),
+    eval_condition(Condition2, Env, true).
+
+eval_condition(t_cond_cond(Condition1, '||', Condition2), Env, false) :-
+    eval_condition(Condition1, Env, false),
+    eval_condition(Condition2, Env, false).
+
+eval_condition(t_cond_cond(Condition1, '||', Condition2), Env, true) :-
+    eval_condition(Condition1, Env, true);
+    eval_condition(Condition2, Env, true).
+
+eval_condition(t_cond_expr(Expression1, <, Expression2), Env, Value) :-
+    eval_expr(Expression1, Env, Value1),
+    eval_expr(Expression2, Env, Value2),
+    (( Value1 < Value2, Value = true);( \+(Value1 < Value2), Value = false)).
+
+eval_condition(t_cond_expr(Expression1, >, Expression2), Env, Value) :-
+    eval_expr(Expression1, Env, Value1),
+    eval_expr(Expression2, Env, Value2),
+    (( Value1 > Value2, Value = true);( \+(Value1 > Value2), Value = false)).
+
+eval_condition(t_cond_expr(Expression1, <=, Expression2), Env, Value) :-
+    eval_expr(Expression1, Env, Value1),
+    eval_expr(Expression2, Env, Value2),
+    (( Value1 > Value2, Value = false);( \+(Value1 > Value2), Value = true)).
+
+eval_condition(t_cond_expr(Expression1, >=, Expression2), Env, Value) :-
+    eval_expr(Expression1, Env, Value1),
+    eval_expr(Expression2, Env, Value2),
+    (( Value1 >= Value2, Value = true);( \+(Value1 >= Value2), Value = false)).
+
+eval_condition(t_cond_expr(Expression1, ==, Expression2), Env, Value) :-
+    eval_expr(Expression1, Env, Value1),
+    eval_expr(Expression2, Env, Value2),
+    (( Value1 = Value2, Value = true);( \+(Value1 = Value2), Value = false)).
+
+eval_condition(t_cond_expr(Expression1, '!=', Expression2), Env, Value) :-
+    eval_expr(Expression1, Env, Value1),
+    eval_expr(Expression2, Env, Value2),
+    (( Value1 = Value2, Value = false);( \+(Value1 = Value2), Value = true)).
 
 % Print Evaluator
 eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
