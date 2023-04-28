@@ -1,66 +1,32 @@
+:- use_rendering(svgtree).
 :- table block/3.
 
-program(t_program(program, '{', Block, '}')) --> [program], ['{'], block(Block), ['}'].
 program(t_program(program, '{', '}')) --> [program], ['{'], ['}'].
-
-
-block(t_block(Statement)) --> statement(Statement).
+program(t_program(program, '{', Block, '}')) --> [program], ['{'], block(Block), ['}'].
+block(t_block_single(Statement)) --> statement(Statement).
 block(t_block(Block, Statement)) --> block(Block), statement(Statement).
 
-statement(t_statement(Declaration, ;)) --> declaration(Declaration), [;].
-statement(t_statement(Assignment, ;)) --> assignment(Assignment), [;].
-statement(t_statement(PrintStatement, [;])) --> print_statement(PrintStatement), [;].
+statement(t_statement_declaration(Declaration, ;)) --> declaration(Declaration), [;].
+statement(t_statement_assignment(Assignment, ;)) --> assignment(Assignment), [;].
 
 declaration(t_declaration(Type, Variable)) --> type(Type), variable(Variable).
-declaration(t_declaration(Type, Variable, ',', Variable1)) --> type(Type), variable(Variable), [','], variable1(Variable1).
+assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
+% assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
+assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
+assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
 
-type(t_type(int)) --> [int].
-type(t_type(float)) --> [float].
-type(t_type(char)) --> [char].
-type(t_type(string)) --> [string].
-type(t_type(bool)) --> [bool].
+type(t_type_int(int)) --> [int].
+type(t_type_float(float)) --> [float].
+type(t_type_char(char)) --> [char].
+type(t_type_string(string)) --> [string].
+type(t_type_bool(bool)) --> [bool].
 
 variable(t_variable(Identifier)) --> identifier(Identifier).
-variable(t_variable(Assignment)) --> assignment(Assignment).
-
-variable1(t_variable1(Variable, ',', Variable1)) --> variable(Variable), [','], variable1(Variable1).
-variable1(t_variable1(Variable)) --> variable(Variable).
-
-assignment(t_assignment(Identifier, =, Expression)) --> identifier(Identifier), [=], expression(Expression).
-
-
-identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
-string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
+expression(Term) --> term(Term).
+term(Factor) --> factor(Factor).
+factor(Integer) --> integer(Integer).
 integer(t_integer(N)) --> [N], {integer(N)}.
-float(t_float(F)) --> [F], {float(F)}.
-boolean(t_boolean(true, false)) --> [true] | [false].
-boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
-
-
-expression(t_expression(Expression, +, Term)) --> expression(Expression), [+], term(Term).
-expression(t_expression(Term)) --> term(Term).
-
-term(t_term(Factor)) --> factor(Factor).
-factor(t_factor(Integer)) --> integer(Integer).
-factor(t_factor(Float)) --> float(Float).
-factor(t_factor(String)) --> string(String).
-factor(t_factor(Boolean)) --> boolean(Boolean).
-
-print_statement(t_print_statement(print, '(', PrintValues, ')')) --> [print], ['('], print_values(PrintValues), [')'].
-print_values(t_print_values(String, ',', PrintValues)) --> string(String), [','], print_values(PrintValues).
-print_values(t_print_values(Identifier, ',', PrintValues)) --> identifier(Identifier), [','], print_values(PrintValues).
-print_values(t_print_values(Integer, ',', PrintValues)) --> integer(Integer), [','], print_values(PrintValues).
-print_values(t_print_values(Integer)) --> integer(Integer).
-print_values(t_print_values(String)) --> string(String).
-print_values(t_print_values(Identifier)) --> identifier(Identifier).
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Evaluator %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% Environment Operations code used from Assignment 3 of Sanket Kapse %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Environment Operations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
 
 lookup(V, [(_DataType, V, Val) | _], Val). 
 lookup(V, [(_DataType, V1, _) | T], Val) :-
@@ -70,36 +36,60 @@ lookup(V, [], _) :-
     format("variable ~w do not found", [V]),
     fail.
 
-
 update(DataType, V, NewVal, [], [(DataType, V, NewVal)]).
 update(DataType, V, NewVal, [(DataType, V, _) | TEnv], [(DataType, V, NewVal) | TEnv]).
 update(DataType, V, NewVal, [HEnv | TEnv], [HEnv | TNewEnv]) :-
     (DataType, V, _) \= HEnv,
     update(DataType, V, NewVal, TEnv, TNewEnv).
 
-check_in_env(V, [(V, _) | _]). 
-check_in_env(V, [(V1, _) | T]) :-
+check_in_env(V, [(_, V, _) | _]). 
+check_in_env(V, [(_, V1, _) | T]) :-
     V1 \= V,
     check_in_env(V, T).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Semantics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-program_eval(t_program(program, '{', Block, '}'), XDataType, X, YDataType, Y, Z) :-
-    update(XDataType, x, X, [], Env),
-    update(YDataType, y, Y, Env, NEnv),
-    eval_block(Block, NEnv, NewEnv),
-    lookup(z, NewEnv, Z).
+eval_program(t_program(program, '{', '}'), _, _).
+eval_program(t_program(program, '{', Block, '}'), Env, NEnv) :-
+    eval_block(Block, Env, NEnv).
 
+eval_block(t_block_single(Statement), Env, NEnv) :- eval_statement(Statement, Env, NEnv).
+eval_block(t_block(Block, Statement), Env, NEnv) :- eval_block(Block, Env, Env1), eval_statement(Statement, Env1, NEnv).
 
-eval_block(t_block(Statement), NEnv, NewEnv)
-eval_block(t_block(Statement), NEnv, NewEnv)
+eval_statement(t_statement_declaration(Declaration, ;), Env, NEnv) :- eval_declaration(Declaration, Env, NEnv).
+eval_statement(t_statement_assignment(Assignment, ;), Env, NEnv) :- eval_assign(Assignment, Env, NEnv).
+eval_declaration(t_declaration(Type, Variable), Env, NEnv) :-
+    eval_type(Type, DataType),
+    eval_variable(Variable, Identifier, Env, Env1),
+    update(DataType, Identifier, 0, Env1, NEnv).
 
+eval_assign(t_assign_expr(Identifier, Expression), Env, NewEnv) :-
+    get_identifier(Identifier, I),
+    eval_expr(Expression, Env, Val),
+    ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
+    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
+
+eval_assign(t_assign_plus(Identifier), Env, NewEnv) :-
+    get_identifier(Identifier, I),
+    ((check_in_env(I, Env), eval_identifier(Identifier, Env, Val), NewVal is Val + 1, update(_, I, NewVal, Env, NewEnv));
+    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
+
+eval_assign(t_assign_minus(Identifier), Env, NewEnv) :-
+    get_identifier(Identifier, I),
+    ((check_in_env(I, Env), eval_identifier(Identifier, Env, Val), NewVal is Val - 1, update(_, I, NewVal, Env, NewEnv));
+    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
+
+eval_variable(t_variable(Variable), V, Env, Env) :- eval_identifier(Variable, V, Env).
+eval_expr(Term, Env, Val) :- eval_term(Term, Env, Val).
+eval_term(Factor, Env, Val) :- eval_factor(Factor, Env, Val).
+eval_factor(t_integer(N), _, N) :- eval_integer(t_integer(N), N).
+eval_integer(t_integer(N), N).
+
+eval_type(t_type_int(X), X).
+eval_type(t_type_float(X), X).
+eval_type(t_type_char(X), X).
+eval_type(t_type_string(X), X).
+eval_type(t_type_bool(X), X).
 
 eval_identifier(t_identifier(I), Env, Val) :- lookup(I, Env, Val).
+get_identifier(t_identifier(I), I).
 
-eval_string(t_string(S), S).
-eval_integer(t_integer(I), I).
-eval_float(t_float(F), F).
-
-eval_boolean(t_boolean(true), _, _, true).
-eval_boolean(t_boolean(false), _, _, false).
