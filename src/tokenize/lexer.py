@@ -53,7 +53,7 @@ tokenized_output = []
 def tokenize(filename):
     with open(os.path.dirname(__file__) + '/../../data/' + filename) as file:
         program = file.read()
-    os.chdir(ROOT_DIRECTORY)     
+    os.chdir(f"{ROOT_DIRECTORY}/src/compiler")     
     text_file = open("tokens.evac", "w")
     # Combine the regular expressions into a single pattern
     pattern = '|'.join('(?P<%s>%s)' % pair for pair in tokens)

@@ -271,10 +271,9 @@ eval_factor(t_par('(', Expression, ')'), Env, Val) :- eval_expr(Expression, Env,
 
 % If Evaluator
 
-eval_if_statement(t_if_parent(Condition, Block, IfStatement1), Env, NEnv) :-
+eval_if_statement(t_if_parent(Condition, Block, _), Env, NEnv) :-
     eval_condition(Condition, Env, true),
-    eval_block(Block, Env, Env1),
-    eval_if_statement1(IfStatement1, Env1, NEnv).
+    eval_block(Block, Env, NEnv).
 
 eval_if_statement(t_if_parent(Condition, _, IfStatement1), Env, NEnv) :-
     eval_condition(Condition, Env, false),

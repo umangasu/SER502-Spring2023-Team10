@@ -5,7 +5,7 @@ convert(File) :-
     open(File, read, Stream),
     read_lines(Stream, TokenList),
     close(Stream),
-    consult('compiler.pl'),
+    consult('../runtime/compiler.pl'),
     program(Tree, TokenList, []),
     write_tree_to_file(Tree, 'tree.txt'),
     eval_program(Tree, [],NEnv).

@@ -14,7 +14,7 @@ def main():
         os.chdir(f"{ROOT_DIRECTORY}/data")
         tokenize(filename)
         token_file = "tokens.evac"
-        os.chdir(ROOT_DIRECTORY)    
+        os.chdir(f"{ROOT_DIRECTORY}/src/compiler")     
         result = subprocess.run(['swipl', '-f', 'tokenize.pl', '-g', f'convert("{token_file}"),halt.'], capture_output=True, text=True)
         print(result.stdout)
 
