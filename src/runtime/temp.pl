@@ -73,8 +73,6 @@ integer(t_integer(N)) --> [N], {integer(N)}.
 string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
 boolean(t_boolean(true)) --> [true].
 boolean(t_boolean(false)) --> [false].
-% boolean(true) --> [true].
-% boolean(false) --> [false].
 
 % Ternary Tree
 ternary(t_ternary(Condition, Expression1, Expression2)) --> condition(Condition), [?], expression(Expression1), [:], expression(Expression2).
@@ -290,6 +288,11 @@ eval_if_statement1(t_else(Block), Env, NEnv) :-
 eval_if_statement1(t_else_if(IfStatement), Env, NEnv) :-
     eval_if_statement(IfStatement, Env, NEnv).
 
+eval_condition(t_cond_negate(Condition), Env, true) :-
+    eval_condition(Condition, Env, false).
+
+eval_condition(t_cond_negate(Condition), Env, false) :-
+    eval_condition(Condition, Env, true).
 
 % Condition Evaluator
 
@@ -338,6 +341,9 @@ eval_condition(t_cond_expr(Expression1, '!=', Expression2), Env, Value) :-
     eval_expr(Expression1, Env, Value1),
     eval_expr(Expression2, Env, Value2),
     (( Value1 = Value2, Value = false);( \+(Value1 = Value2), Value = true)).
+
+eval_condition(t_cond_bool(Boolean), _, Value) :-
+    eval_bool(Boolean, Value).
 
 % While Evaluator
 eval_while(t_while(Condition, _), Env, Env) :-
