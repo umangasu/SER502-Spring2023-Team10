@@ -40,7 +40,7 @@ statement(t_statement_declaration(Declaration)) --> declaration(Declaration), [;
 statement(t_statement_assignment(Assignment)) --> assignment(Assignment), [;].
 statement(t_statement_print(PrintStatement)) --> print_statement(PrintStatement), [;].
 statement(t_statement_if(IfStatement)) --> if_statement(IfStatement).
-% statement(t_statement_while(WhileLoop)) --> while_loop(WhileLoop).
+statement(t_statement_while(WhileLoop)) --> while_loop(WhileLoop).
 % statement(t_statement_for(ForLoop)) --> for_loop(ForLoop).
 % statement(t_statement_range(ForRange)) --> for_range(ForRange).
 
@@ -111,7 +111,8 @@ relation_op('!') --> ['!='].
 logical_op('&&') --> ['&&'].
 logical_op('||') --> ['||'].
 
-
+% While Tree
+while_loop(t_while(Condition, Block)) --> [while], ['('], condition(Condition), [')'], ['{'], block(Block), ['}'].
 
 % Print Tree
 
@@ -141,7 +142,7 @@ eval_statement(t_statement_declaration(Declaration), Env, NEnv) :- eval_declarat
 eval_statement(t_statement_assignment(Assignment), Env, NEnv) :- eval_assign(Assignment, Env, NEnv).
 eval_statement(t_statement_print(PrintStatement), Env, Env) :- eval_print_statement(PrintStatement, Env).
 eval_statement(t_statement_if(IfStatement), Env, NEnv) :- eval_if_statement(IfStatement, Env, NEnv).
-
+eval_statement(t_statement_while(WhileLoop), Env, NEnv) :- eval_while(WhileLoop, Env, NEnv).
 
 
 % Declaration Evaluator
@@ -307,6 +308,15 @@ eval_condition(t_cond_expr(Expression1, '!=', Expression2), Env, Value) :-
     eval_expr(Expression1, Env, Value1),
     eval_expr(Expression2, Env, Value2),
     (( Value1 = Value2, Value = false);( \+(Value1 = Value2), Value = true)).
+
+% While Evaluator
+eval_while(t_while(Condition, _), Env, Env) :-
+    eval_condition(Condition, Env, false).
+
+eval_while(t_while(Condition, Block), Env, NEnv) :- 
+    eval_condition(Condition, Env, true),
+    eval_block(Block, Env, Env1),
+    eval_while(t_while(Condition, Block), Env1, NEnv).
 
 % Print Evaluator
 eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
