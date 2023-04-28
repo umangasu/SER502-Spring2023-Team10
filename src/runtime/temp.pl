@@ -66,7 +66,7 @@ assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
 assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
 
 % Identifier Tree
-identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
+identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, while, range, print, int, float, char, string, bool, in, true, false])}.
 
 %
 integer(t_integer(N)) --> [N], {integer(N)}.
@@ -87,6 +87,7 @@ term(t_div(Term, Factor)) --> term(Term), [/], factor(Factor).
 term(Factor) --> factor(Factor).
 
 factor(Integer) --> integer(Integer).
+factor(Boolean) --> boolean(Boolean).
 factor(Identifier) --> identifier(Identifier).
 factor(t_par('(', Expression, ')')) --> ['('], expression(Expression), [')'].
 
@@ -266,6 +267,7 @@ eval_term(t_div(Term, Factor), Env, Val) :-
 eval_term(Factor, Env, Val) :- eval_factor(Factor, Env, Val).
 
 eval_factor(t_integer(N), _, N) :- eval_integer(t_integer(N), N).
+eval_factor(t_boolean(N), _, N) :- eval_bool(t_boolean(N), N).
 eval_factor(Identifier, Env, Val) :- eval_identifier(Identifier, Env, Val).
 eval_factor(t_par('(', Expression, ')'), Env, Val) :- eval_expr(Expression, Env, Val).
 
