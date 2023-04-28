@@ -1,7 +1,7 @@
 program
-{ int n=6;
-int n1 = 0;
-int n2 = 1;
+{ int n;
+int n1;
+int n2;
 string x = "hello";
 int next = n1+n2;
 print(n1);

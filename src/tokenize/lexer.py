@@ -83,7 +83,7 @@ def tokenize(filename):
             tokenized_output.insert(i+2, '"' + '\n')
             tokenized_output.pop(i+3)
             i+=2
-        i+=1    
+        i+=1
     tokenized_output.pop()
     text_file.write(''.join(tokenized_output))
 
