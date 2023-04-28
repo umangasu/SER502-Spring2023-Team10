@@ -60,6 +60,7 @@ variable(t_var_id(Identifier)) --> identifier(Identifier).
 % Assignment Tree
 assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
 assignment(t_assign_str(Identifier, String)) --> identifier(Identifier), [=], string(String).
+assignment(t_assign_bool(Identifier, Boolean)) --> identifier(Identifier), [=], boolean(Boolean).
 assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
 assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
 assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
@@ -70,9 +71,10 @@ identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, e
 %
 integer(t_integer(N)) --> [N], {integer(N)}.
 string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
+boolean(t_boolean(true)) --> [true].
+boolean(t_boolean(false)) --> [false].
 % boolean(true) --> [true].
 % boolean(false) --> [false].
-% boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
 
 % Ternary Tree
 ternary(t_ternary(Condition, Expression1, Expression2)) --> condition(Condition), [?], expression(Expression1), [:], expression(Expression2).
@@ -99,7 +101,8 @@ if_statement1(t_else_if(IfStatement)) --> [else], if_statement(IfStatement).
 % Condition Tree
 condition(t_cond_expr(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
 condition(t_cond_cond(Condition1, LogicalOp, Condition2)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition2).
-
+condition(t_cond_bool(Boolean)) --> boolean(Boolean).
+condition(t_cond_negate(Condition)) --> [!], condition(Condition).
 
 % Relation Tree
 relation_op(<) --> [<].
@@ -189,6 +192,12 @@ eval_assign(t_assign_str(Identifier, String), Env, NewEnv) :-
     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
 
+eval_assign(t_assign_bool(Identifier, Boolean), Env, NewEnv) :-
+    get_identifier(Identifier, I),
+    eval_bool(Boolean, Val),
+    ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
+    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
+
 eval_assign(t_assign_ternary(Identifier, Ternary), Env, NewEnv) :-
     get_identifier(Identifier, I),
     eval_ternary(Ternary, Env, Val),
@@ -213,6 +222,7 @@ get_identifier(t_identifier(I), I).
 %
 eval_integer(t_integer(N), N).
 eval_string(t_string(S), S).
+eval_bool(t_boolean(B), B).
 
 % Ternary Evaluator
 
@@ -410,8 +420,13 @@ eval_print_values(t_print_values(t_print_string(t_string(S)), PrintValues), Env)
     write(S),
     write(" "),
     eval_print_values(PrintValues , Env).
+eval_print_values(t_print_values(t_print_bool(t_boolean(B)), PrintValues), Env) :-
+    write(B),
+    write(" "),
+    eval_print_values(PrintValues , Env).
 
 eval_print_values(t_print_int(t_integer(N)), _) :- write(N).
 eval_print_values(t_print_string(t_string(S)), _) :- write(S).
+eval_print_values(t_print_bool(t_boolean(B)), _) :- write(B).
 eval_print_values(t_print_identifier(I), Env) :- eval_identifier(I, Env, IVal), write(IVal).
 
