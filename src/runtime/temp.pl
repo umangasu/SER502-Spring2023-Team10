@@ -43,7 +43,7 @@ statement(t_statement_print(PrintStatement)) --> print_statement(PrintStatement)
 statement(t_statement_if(IfStatement)) --> if_statement(IfStatement).
 statement(t_statement_while(WhileLoop)) --> while_loop(WhileLoop).
 statement(t_statement_for(ForLoop)) --> for_loop(ForLoop).
-% statement(t_statement_range(ForRange)) --> for_range(ForRange).
+statement(t_statement_range(ForRange)) --> for_range(ForRange).
 
 % Declaration Tree
 declaration(t_declare_var(Type, Variable)) --> type(Type), variable(Variable).
@@ -119,6 +119,11 @@ while_loop(t_while(Condition, Block)) --> [while], ['('], condition(Condition), 
 % For Tree
 for_loop(t_for_loop(Assignment1, Condition, Assignment2, Block)) --> [for], ['('], assignment(Assignment1), [;], condition(Condition), [;], assignment(Assignment2), [')'], ['{'], block(Block), ['}'].
 
+% For Range Tree
+for_range(t_for_range(Identifier, ForInteger1, ForInteger2, Block)) --> [for], identifier(Identifier), [in], [range], ['('], for_integer(ForInteger1), [';'], for_integer(ForInteger2), [')'], ['{'], block(Block), ['}'].
+
+for_integer(t_for_int(Integer)) --> integer(Integer).
+for_integer(t_for_id(Identifier)) --> identifier(Identifier).
 
 % Print Tree
 
@@ -150,6 +155,7 @@ eval_statement(t_statement_print(PrintStatement), Env, Env) :- eval_print_statem
 eval_statement(t_statement_if(IfStatement), Env, NEnv) :- eval_if_statement(IfStatement, Env, NEnv).
 eval_statement(t_statement_while(WhileLoop), Env, NEnv) :- eval_while(WhileLoop, Env, NEnv).
 eval_statement(t_statement_for(ForLoop), Env, NEnv) :- eval_for_loop(ForLoop, Env, NEnv).
+eval_statement(t_statement_range(ForRange), Env, NEnv) :- eval_for_range(ForRange, Env, NEnv).
 
 % Declaration Evaluator
 eval_declaration(t_declare_var(Type, Variable), Env, NEnv) :-
@@ -345,6 +351,41 @@ eval_loop(Condition, Assignment, Block, Env, NEnv) :-
     eval_condition(Condition, Env1, true),
     eval_block(Block, Env1, Env2),
     eval_loop(Condition, Assignment, Block, Env2, NEnv).
+
+
+% For Range Evaluator
+
+eval_for_range(t_for_range(Identifier, ForInteger1, ForInteger2, _Block), Env, NEnv) :-
+    get_identifier(Identifier, I),
+    eval_for_integer(ForInteger1, Env, Start),
+    update(int, I, Start, Env, NEnv),
+    eval_for_integer(ForInteger2, NEnv, End),
+    Start >= End.
+
+eval_for_range(t_for_range(Identifier, ForInteger1, ForInteger2, Block), Env, NEnv) :-
+    get_identifier(Identifier, I),
+    eval_for_integer(ForInteger1, Env, Start),
+    update(int, I, Start, Env, Env1),
+    eval_for_integer(ForInteger2, Env1, End),
+    Start < End,
+    eval_block(Block, Env1, Env2),
+    eval_range_loop(I, Start, End, Block, Env2, NEnv).
+
+eval_range_loop(I, Start, End, _Block, Env, NEnv) :-
+    Start1 is Start + 1,
+    update(int, I, Start1, Env, NEnv),
+    Start1 >= End.
+
+eval_range_loop(I, Start, End, Block, Env, NEnv) :-
+    Start1 is Start + 1,
+    update(int, I, Start1, Env, Env1),
+    Start1 < End,
+    eval_block(Block, Env1, Env2),
+    eval_range_loop(I, Start1, End, Block, Env2, NEnv).
+
+
+eval_for_integer(t_for_int(Integer), _, N) :- eval_integer(Integer, N).
+eval_for_integer(t_for_id(Identifier), Env, N) :- eval_identifier(Identifier, Env, N).
 
 % Print Evaluator
 eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
