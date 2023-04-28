@@ -37,10 +37,11 @@ declaration(t_declare_var(Type, Variable)) --> type(Type), variable(Variable).
 
 % Type tree
 type(int) --> [int].
+type(string) --> [string].
+type(bool)--> [bool].
 
 % Variable Tree
 variable(t_var_id(Identifier)) --> identifier(Identifier).
-
 
 % Identifier Tree
 identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
@@ -65,9 +66,17 @@ eval_declaration(t_declare_var(Type, Variable), Env, NEnv) :-
     eval_variable(Variable, Type, Env, NEnv).
 
 % Variable Evaluator
-eval_variable(t_var_id(Identifier), Datatype, Env, NEnv) :- 
+eval_variable(t_var_id(Identifier), int, Env, NEnv) :- 
     get_identifier( Identifier, I),
-    update(Datatype, I, 0, Env, NEnv).
+    update(int, I, 0, Env, NEnv).
+
+eval_variable(t_var_id(Identifier), string, Env, NEnv) :- 
+    get_identifier( Identifier, I),
+    update(string, I, '', Env, NEnv).
+
+eval_variable(t_var_id(Identifier), bool, Env, NEnv) :- 
+    get_identifier( Identifier, I),
+    update(bool, I, false, Env, NEnv).
 
 % Identifier
 get_identifier(t_identifier(I), I).
