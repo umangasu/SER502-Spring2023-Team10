@@ -114,6 +114,11 @@ logical_op('||') --> ['||'].
 % While Tree
 while_loop(t_while(Condition, Block)) --> [while], ['('], condition(Condition), [')'], ['{'], block(Block), ['}'].
 
+% For Tree
+% for_loop(t_for_loop(Identifier, ForInteger, Condition, Assignment, Block)) --> [for], ['('], identifier(Identifier), [=], for_integer(ForInteger), [;], condition(Condition), [;], assignment(Assignment), [')'], ['{'], block(Block), ['}'].
+% for_integer(t_for_int(Integer)) --> integer(Integer).
+% for_integer(t_for_id(Identifier)) --> identifier(Identifier).
+
 % Print Tree
 
 print_statement(t_print_statement(PrintValues)) --> [print], ['('], print_values(PrintValues), [')'].
@@ -143,7 +148,7 @@ eval_statement(t_statement_assignment(Assignment), Env, NEnv) :- eval_assign(Ass
 eval_statement(t_statement_print(PrintStatement), Env, Env) :- eval_print_statement(PrintStatement, Env).
 eval_statement(t_statement_if(IfStatement), Env, NEnv) :- eval_if_statement(IfStatement, Env, NEnv).
 eval_statement(t_statement_while(WhileLoop), Env, NEnv) :- eval_while(WhileLoop, Env, NEnv).
-
+% eval_statement(t_statement_for(ForLoop), Env, NEnv) :- eval_for_loop(ForLoop, Env, NEnv).
 
 % Declaration Evaluator
 eval_declaration(t_declare_var(Type, Variable), Env, NEnv) :-
@@ -318,6 +323,24 @@ eval_while(t_while(Condition, Block), Env, NEnv) :-
     eval_block(Block, Env, Env1),
     eval_while(t_while(Condition, Block), Env1, NEnv).
 
+% For Evaluator
+% eval_for_loop(t_for_loop(Identifier, ForInteger, Condition, Assignment, Block), Env, NEnv) :- 
+%     eval_for_integer(ForInteger, I, Env),
+%     eval_assign(t_assign_expr(Identifier, I), Env, Env1),
+%     eval_condition(Condition, Env1, true),
+%     eval_statement(t_statement_assignment(Assignment), Env1, Env2),
+%     eval_block(Block, Env2, Env3),
+%     eval_for_loop(t_for_loop(Identifier, ForInteger, Condition, Assignment, Block), Env3, NEnv).
+
+% eval_for_loop(t_for_loop(Identifier, ForInteger, Condition, _, _), Env, NEnv) :- 
+%     eval_for_integer(ForInteger, I, Env),
+%     eval_assign(t_assign_expr(Identifier, I), Env, NEnv),
+%     eval_condition(Condition, NEnv, false).
+
+% For Integer Evaluator
+% eval_for_integer(t_for_int(Integer), Integer, _).
+% eval_for_integer(t_for_id(Identifier, I, Env)) :-  lookup(Identifier, Env, I).
+
 % Print Evaluator
 eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
 eval_print_values(t_print_values(t_print_identifier(I), PrintValues), Env) :-
@@ -336,4 +359,3 @@ eval_print_values(t_print_values(t_print_string(t_string(S)), PrintValues), Env)
 eval_print_values(t_print_int(t_integer(N)), _) :- write(N).
 eval_print_values(t_print_string(t_string(S)), _) :- write(S).
 eval_print_values(t_print_identifier(I), Env) :- eval_identifier(I, Env, IVal), write(IVal).
-
