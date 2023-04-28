@@ -1,5 +1,6 @@
 import os.path
 import re
+from _path import ROOT_DIRECTORY
 
 # Define the regular expressions for each token
 tokens = [
@@ -52,7 +53,8 @@ tokenized_output = []
 def tokenize(filename):
     with open(os.path.dirname(__file__) + '/../../data/' + filename) as file:
         program = file.read()
-    text_file = open("sample.txt", "w")
+    os.chdir(ROOT_DIRECTORY)     
+    text_file = open("tokens.txt", "w")
     # Combine the regular expressions into a single pattern
     pattern = '|'.join('(?P<%s>%s)' % pair for pair in tokens)
     # Tokenize the input string
@@ -64,13 +66,24 @@ def tokenize(filename):
             continue
         elif token_type == 'PRINTEXP':
             print_value = token_value[6:len(token_value) - 1].split(',')
-            print('print value : ', print_value)
-            tokenized_output.append('\'' + "print" + '\'\n' + '\'' + "(" + '\'\n')
+            tokenized_output.append("print" + '\n' + "(" + '\n')
             for value in print_value:
-                tokenized_output.append('\'' + value.strip() + '\'\n')
-            tokenized_output.append('\'' + ")" + '\'\n')
+                tokenized_output.append( value.strip() + '\n')
+                tokenized_output.append(","+"\n")
+            tokenized_output.pop()    
+            tokenized_output.append( ")" + '\n')
             continue
-        tokenized_output.append('\'' + token_value + '\'\n')
+        tokenized_output.append(token_value + '\n')
+    i = 0    
+    while i < len(tokenized_output):
+        if tokenized_output[i][0] == '"' and tokenized_output[i][-2] == '"':
+            var = tokenized_output[i][1:-2]
+            tokenized_output.insert(i, '"' + '\n')
+            tokenized_output.insert(i+1, var + '\n')
+            tokenized_output.insert(i+2, '"' + '\n')
+            tokenized_output.pop(i+3)
+            i+=2
+        i+=1    
     tokenized_output.pop()
     text_file.write(''.join(tokenized_output))
 
