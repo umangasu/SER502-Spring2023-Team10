@@ -64,13 +64,6 @@ def tokenize(filename):
         # Ignore whitespace tokens
         if token_type == 'WHITESPACE':
             continue
-        elif token_type == 'PRINT_TEXT':
-            print("Print text : ", token_value)
-            if len(token_value) > 0:
-                if token_value[0] == '"' and token_value[len(token_value) - 1] == '"':
-                    tokenized_output.append('\'\"\'\n')
-                    tokenized_output.append('\'' + token_value[1:len(token_value) - 1] + '\'\n')
-                    tokenized_output.append('\'\"\'\n')
         elif token_type == 'PRINTEXP':
             print_value = token_value[6:len(token_value) - 1].split(',')
             tokenized_output.append("print" + '\n' + "(" + '\n')
