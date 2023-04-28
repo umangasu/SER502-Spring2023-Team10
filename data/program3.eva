@@ -1,5 +1,0 @@
-program
-{ int sum;
-  sum = 10;
-  print(sum);
-}

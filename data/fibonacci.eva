@@ -1,0 +1,17 @@
+program
+{ 
+    int n; 
+    n = 0;
+    int n1; 
+    n1 = 1;
+    int n2;
+    int i;
+    int max;
+    max = 6;
+    for(i = 2; i <= max; i++) {
+        n2 = n + n1;
+        n = n1;
+        n1 = n2;
+    }
+    print("Fibonacci of term", max, "is", n2);
+}

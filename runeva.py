@@ -13,10 +13,10 @@ def main():
         filename = sys.argv[1]
         os.chdir(f"{ROOT_DIRECTORY}/data")
         tokenize(filename)
-        token_file = "tokens.txt"
+        token_file = "tokens.evac"
         os.chdir(ROOT_DIRECTORY)    
         result = subprocess.run(['swipl', '-f', 'tokenize.pl', '-g', f'convert("{token_file}"),halt.'], capture_output=True, text=True)
-        print(result)
+        print(result.stdout)
 
     except KeyboardInterrupt:
         try:
