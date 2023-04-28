@@ -7,11 +7,11 @@
 
 :- table condition/3.
 
-lookup(V, [(_DataType, V, Val) | _], Val). 
+lookup(V, [(_DataType, V, Val) | _], Val).
 lookup(V, [(_DataType, V1, _) | T], Val) :-
     V1 \= V,
     lookup(V, T, Val).
-lookup(V, [], _) :- 
+lookup(V, [], _) :-
     format("variable ~w do not found", [V]),
     fail.
 
@@ -21,7 +21,7 @@ update(DataType, V, NewVal, [HEnv | TEnv], [HEnv | TNewEnv]) :-
     (DataType, V, _) \= HEnv,
     update(DataType, V, NewVal, TEnv, TNewEnv).
 
-check_in_env(V, [(_, V, _) | _]). 
+check_in_env(V, [(_, V, _) | _]).
 check_in_env(V, [(_, V1, _) | T]) :-
     V1 \= V,
     check_in_env(V, T).
@@ -59,6 +59,7 @@ variable(t_var_id(Identifier)) --> identifier(Identifier).
 
 % Assignment Tree
 assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
+assignment(t_assign_str(Identifier, String)) --> identifier(Identifier), [=], string(String).
 assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
 assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
 assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
@@ -95,7 +96,7 @@ if_statement1(t_if()) --> [].
 if_statement1(t_else(Block)) --> [else], ['{'], block(Block), ['}'].
 if_statement1(t_else_if(IfStatement)) --> [else], if_statement(IfStatement).
 
-% Condition Tree 
+% Condition Tree
 condition(t_cond_expr(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
 condition(t_cond_cond(Condition1, LogicalOp, Condition2)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition2).
 
@@ -143,8 +144,8 @@ eval_program(t_program(program, '{', Block, '}'), Env, NEnv) :-
 
 % Block Evaluator
 eval_block(t_block_single(Statement), Env, NEnv) :- eval_statement(Statement, Env, NEnv).
-eval_block(t_block(Block, Statement), Env, NEnv) :- 
-    eval_block(Block, Env, Env1), 
+eval_block(t_block(Block, Statement), Env, NEnv) :-
+    eval_block(Block, Env, Env1),
     eval_statement(Statement, Env1, NEnv).
 
 
@@ -162,15 +163,15 @@ eval_declaration(t_declare_var(Type, Variable), Env, NEnv) :-
     eval_variable(Variable, Type, Env, NEnv).
 
 % Variable Evaluator
-eval_variable(t_var_id(Identifier), int, Env, NEnv) :- 
+eval_variable(t_var_id(Identifier), int, Env, NEnv) :-
     get_identifier( Identifier, I),
     update(int, I, 0, Env, NEnv).
 
-eval_variable(t_var_id(Identifier), string, Env, NEnv) :- 
+eval_variable(t_var_id(Identifier), string, Env, NEnv) :-
     get_identifier( Identifier, I),
     update(string, I, '', Env, NEnv).
 
-eval_variable(t_var_id(Identifier), bool, Env, NEnv) :- 
+eval_variable(t_var_id(Identifier), bool, Env, NEnv) :-
     get_identifier( Identifier, I),
     update(bool, I, false, Env, NEnv).
 
@@ -182,12 +183,18 @@ eval_assign(t_assign_expr(Identifier, Expression), Env, NewEnv) :-
     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
 
+eval_assign(t_assign_str(Identifier, String), Env, NewEnv) :-
+    get_identifier(Identifier, I),
+    eval_string(String, Val),
+    ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
+    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
+
 eval_assign(t_assign_ternary(Identifier, Ternary), Env, NewEnv) :-
     get_identifier(Identifier, I),
     eval_ternary(Ternary, Env, Val),
     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
-                           
+
 eval_assign(t_assign_plus(Identifier), Env, NewEnv) :-
     get_identifier(Identifier, I),
     ((check_in_env(I, Env), eval_identifier(Identifier, Env, Val), NewVal is Val + 1, update(_, I, NewVal, Env, NewEnv));
@@ -205,6 +212,7 @@ get_identifier(t_identifier(I), I).
 
 %
 eval_integer(t_integer(N), N).
+eval_string(t_string(S), S).
 
 % Ternary Evaluator
 
@@ -325,18 +333,18 @@ eval_condition(t_cond_expr(Expression1, '!=', Expression2), Env, Value) :-
 eval_while(t_while(Condition, _), Env, Env) :-
     eval_condition(Condition, Env, false).
 
-eval_while(t_while(Condition, Block), Env, NEnv) :- 
+eval_while(t_while(Condition, Block), Env, NEnv) :-
     eval_condition(Condition, Env, true),
     eval_block(Block, Env, Env1),
     eval_while(t_while(Condition, Block), Env1, NEnv).
 
 % For loop Evaluator
 
-eval_for_loop(t_for_loop(Assignment1, Condition, _Assignment2, _Block), Env, NEnv) :- 
+eval_for_loop(t_for_loop(Assignment1, Condition, _Assignment2, _Block), Env, NEnv) :-
     eval_assign(Assignment1, Env, NEnv),
     eval_condition(Condition, NEnv, false).
 
-eval_for_loop(t_for_loop(Assignment1, Condition, Assignment2, Block), Env, NEnv) :- 
+eval_for_loop(t_for_loop(Assignment1, Condition, Assignment2, Block), Env, NEnv) :-
     eval_assign(Assignment1, Env, Env1),
     eval_condition(Condition, Env1, true),
     eval_block(Block, Env1, Env2),
@@ -390,18 +398,19 @@ eval_for_integer(t_for_id(Identifier), Env, N) :- eval_identifier(Identifier, En
 % Print Evaluator
 eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
 eval_print_values(t_print_values(t_print_identifier(I), PrintValues), Env) :-
-    % eval_identifier(I, Env, IVal), write(IVal), 
+    % eval_identifier(I, Env, IVal), write(IVal),
     eval_print_values(t_print_identifier(I), Env),
-    write(" "), 
-    eval_print_values(PrintValues , Env).
-eval_print_values(t_print_values(t_print_int(t_integer(N)), PrintValues), Env) :-
-    write(N), 
-    write(" "), 
-    eval_print_values(PrintValues , Env).
-eval_print_values(t_print_values(t_print_string(t_string(S)), PrintValues), Env) :- 
-    write(S), 
     write(" "),
     eval_print_values(PrintValues , Env).
+eval_print_values(t_print_values(t_print_int(t_integer(N)), PrintValues), Env) :-
+    write(N),
+    write(" "),
+    eval_print_values(PrintValues , Env).
+eval_print_values(t_print_values(t_print_string(t_string(S)), PrintValues), Env) :-
+    write(S),
+    write(" "),
+    eval_print_values(PrintValues , Env).
+
 eval_print_values(t_print_int(t_integer(N)), _) :- write(N).
 eval_print_values(t_print_string(t_string(S)), _) :- write(S).
 eval_print_values(t_print_identifier(I), Env) :- eval_identifier(I, Env, IVal), write(IVal).
