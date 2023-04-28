@@ -1,3 +1,5 @@
+:- table block/3.
+
 lookup(V, [(_DataType, V, Val) | _], Val). 
 lookup(V, [(_DataType, V1, _) | T], Val) :-
     V1 \= V,
@@ -25,7 +27,7 @@ program(t_program(program, '{', Block, '}')) --> [program], ['{'], block(Block),
 
 % Block Tree
 block(t_block_single(Statement)) --> statement(Statement).
-% block(t_block(Block, Statement)) --> block(Block), statement(Statement).
+block(t_block(Block, Statement)) --> block(Block), statement(Statement).
 
 % Statement Tree
 statement(t_statement_declaration(Declaration)) --> declaration(Declaration), [;].
@@ -50,6 +52,10 @@ eval_program(t_program(program, '{', Block, '}'), Env, NEnv) :-
 
 % Block Evaluator
 eval_block(t_block_single(Statement), Env, NEnv) :- eval_statement(Statement, Env, NEnv).
+eval_block(t_block(Block, Statement), Env, NEnv) :- 
+    eval_block(Block, Env, Env1), 
+    eval_statement(Statement, Env1, NEnv).
+
 
 % Statement Evaluator
 eval_statement(t_statement_declaration(Declaration), Env, NEnv) :- eval_declaration(Declaration, Env, NEnv).
