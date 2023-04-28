@@ -39,7 +39,7 @@ block(t_block(Block, Statement)) --> block(Block), statement(Statement).
 statement(t_statement_declaration(Declaration)) --> declaration(Declaration), [;].
 statement(t_statement_assignment(Assignment)) --> assignment(Assignment), [;].
 statement(t_statement_print(PrintStatement)) --> print_statement(PrintStatement), [;].
-% statement(t_statement_if(IfStatement)) --> if_statement(IfStatement).
+statement(t_statement_if(IfStatement)) --> if_statement(IfStatement).
 % statement(t_statement_while(WhileLoop)) --> while_loop(WhileLoop).
 % statement(t_statement_for(ForLoop)) --> for_loop(ForLoop).
 % statement(t_statement_range(ForRange)) --> for_range(ForRange).
@@ -88,6 +88,12 @@ factor(Integer) --> integer(Integer).
 factor(Identifier) --> identifier(Identifier).
 factor(t_par('(', Expression, ')')) --> ['('], expression(Expression), [')'].
 
+% If Tree
+if_statement(t_if_parent(Condition, Block, IfStatement1)) --> [if], ['('], condition(Condition), [')'], ['{'], block(Block), ['}'], if_statement1(IfStatement1).
+if_statement1(t_if()) --> [].
+if_statement1(t_else(Block)) --> [else], ['{'], block(Block), ['}'].
+if_statement1(t_else_if(IfStatement)) --> [else], if_statement(IfStatement).
+
 % Condition Tree 
 condition(t_cond_expr(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
 condition(t_cond_cond(Condition1, LogicalOp, Condition2)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition2).
@@ -134,6 +140,9 @@ eval_block(t_block(Block, Statement), Env, NEnv) :-
 eval_statement(t_statement_declaration(Declaration), Env, NEnv) :- eval_declaration(Declaration, Env, NEnv).
 eval_statement(t_statement_assignment(Assignment), Env, NEnv) :- eval_assign(Assignment, Env, NEnv).
 eval_statement(t_statement_print(PrintStatement), Env, Env) :- eval_print_statement(PrintStatement, Env).
+eval_statement(t_statement_if(IfStatement), Env, NEnv) :- eval_if_statement(IfStatement, Env, NEnv).
+
+
 
 % Declaration Evaluator
 eval_declaration(t_declare_var(Type, Variable), Env, NEnv) :-
@@ -230,6 +239,26 @@ eval_term(Factor, Env, Val) :- eval_factor(Factor, Env, Val).
 eval_factor(t_integer(N), _, N) :- eval_integer(t_integer(N), N).
 eval_factor(Identifier, Env, Val) :- eval_identifier(Identifier, Env, Val).
 eval_factor(t_par('(', Expression, ')'), Env, Val) :- eval_expr(Expression, Env, Val).
+
+% If Evaluator
+
+eval_if_statement(t_if_parent(Condition, Block, IfStatement1), Env, NEnv) :-
+    eval_condition(Condition, Env, true),
+    eval_block(Block, Env, Env1),
+    eval_if_statement1(IfStatement1, Env1, NEnv).
+
+eval_if_statement(t_if_parent(Condition, _, IfStatement1), Env, NEnv) :-
+    eval_condition(Condition, Env, false),
+    eval_if_statement1(IfStatement1, Env, NEnv).
+
+eval_if_statement1(t_if(), Env, Env).
+
+eval_if_statement1(t_else(Block), Env, NEnv) :-
+    eval_block(Block, Env, NEnv).
+
+eval_if_statement1(t_else_if(IfStatement), Env, NEnv) :-
+    eval_if_statement(IfStatement, Env, NEnv).
+
 
 % Condition Evaluator
 
