@@ -35,6 +35,11 @@ block(t_block(Block, Statement)) --> block(Block), statement(Statement).
 % Statement Tree
 statement(t_statement_declaration(Declaration)) --> declaration(Declaration), [;].
 statement(t_statement_assignment(Assignment)) --> assignment(Assignment), [;].
+statement(t_statement_print(PrintStatement)) --> print_statement(PrintStatement), [;].
+% statement(t_statement_if(IfStatement)) --> if_statement(IfStatement).
+% statement(t_statement_while(WhileLoop)) --> while_loop(WhileLoop).
+% statement(t_statement_for(ForLoop)) --> for_loop(ForLoop).
+% statement(t_statement_range(ForRange)) --> for_range(ForRange).
 
 % Declaration Tree
 declaration(t_declare_var(Type, Variable)) --> type(Type), variable(Variable).
@@ -46,6 +51,7 @@ type(bool)--> [bool].
 
 % Variable Tree
 variable(t_var_id(Identifier)) --> identifier(Identifier).
+% variable(t_variable(Assignment)) --> assignment(Assignment).
 
 % Assignment Tree
 assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
@@ -58,6 +64,13 @@ identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, e
 
 %
 integer(t_integer(N)) --> [N], {integer(N)}.
+string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
+% boolean(true) --> [true].
+% boolean(false) --> [false].
+% boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
+
+% Ternary Tree
+
 
 % Expression Tree
 expression(t_add(Expression, Term)) --> expression(Expression), [+], term(Term).
@@ -71,6 +84,18 @@ term(Factor) --> factor(Factor).
 factor(Integer) --> integer(Integer).
 factor(Identifier) --> identifier(Identifier).
 factor(t_par('(', Expression, ')')) --> ['('], expression(Expression), [')'].
+
+
+% Print Tree
+
+print_statement(t_print_statement(PrintValues)) --> [print], ['('], print_values(PrintValues), [')'].
+print_values(t_print_values(t_print_identifier(Identifier), PrintValues)) --> identifier(Identifier), [','], print_values(PrintValues).
+print_values(t_print_values(t_print_string(String), PrintValues)) --> string(String), [','], print_values(PrintValues).
+print_values(t_print_values(t_print_int(Integer), PrintValues)) --> integer(Integer), [','], print_values(PrintValues).
+print_values(t_print_int(Integer)) --> integer(Integer).
+print_values(t_print_string(String)) --> string(String).
+print_values(t_print_identifier(Identifier)) --> identifier(Identifier).
+
 
 % Program Evaluator
 eval_program(t_program(program, '{', '}'), _, _).
@@ -87,6 +112,7 @@ eval_block(t_block(Block, Statement), Env, NEnv) :-
 % Statement Evaluator
 eval_statement(t_statement_declaration(Declaration), Env, NEnv) :- eval_declaration(Declaration, Env, NEnv).
 eval_statement(t_statement_assignment(Assignment), Env, NEnv) :- eval_assign(Assignment, Env, NEnv).
+eval_statement(t_statement_print(PrintStatement), Env, Env) :- eval_print_statement(PrintStatement, Env).
 
 % Declaration Evaluator
 eval_declaration(t_declare_var(Type, Variable), Env, NEnv) :-
@@ -175,4 +201,23 @@ eval_factor(t_integer(N), _, N) :- eval_integer(t_integer(N), N).
 eval_factor(Identifier, Env, Val) :- eval_identifier(Identifier, Env, Val).
 eval_factor(t_par('(', Expression, ')'), Env, Val) :- eval_expr(Expression, Env, Val).
 
+
+% Print Evaluator
+eval_print_statement(t_print_statement(PrintValues), Env) :- eval_print_values(PrintValues, Env), nl.
+eval_print_values(t_print_values(t_print_identifier(I), PrintValues), Env) :-
+    % eval_identifier(I, Env, IVal), write(IVal), 
+    eval_print_values(t_print_identifier(I), Env),
+    write(" "), 
+    eval_print_values(PrintValues , Env).
+eval_print_values(t_print_values(t_print_int(t_integer(N)), PrintValues), Env) :-
+    write(N), 
+    write(" "), 
+    eval_print_values(PrintValues , Env).
+eval_print_values(t_print_values(t_print_string(t_string(S)), PrintValues), Env) :- 
+    write(S), 
+    write(" "),
+    eval_print_values(PrintValues , Env).
+eval_print_values(t_print_int(t_integer(N)), _) :- write(N).
+eval_print_values(t_print_string(t_string(S)), _) :- write(S).
+eval_print_values(t_print_identifier(I), Env) :- eval_identifier(I, Env, IVal), write(IVal).
 

@@ -209,6 +209,7 @@ if_statement1(t_if_statement1(else, IfStatement)) --> [else], if_statement(IfSta
 
 condition(t_condition(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
 condition(t_condition(Condition1, LogicalOp, Condition1)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition1).
+condition(t_condition(Boolean)) --> boolean(Boolean).
 
 relation_op(t_relation_op(<)) --> [<].
 relation_op(t_relation_op(<=)) --> [<=].
