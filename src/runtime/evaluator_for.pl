@@ -21,4 +21,4 @@ eval_for_loop(t_for_loop(Identifier, ForInteger, Condition, Assignment, Block), 
 eval_for_integer(t_for_int(Integer), Integer, _).
 eval_for_integer(t_for_id(Identifier, I, Env)) :-  lookup(Identifier, Env, I).
 
-program(Tree, [program, '{', int, i, ;, int, j, ;, j, =, 0, ;, for, '(', i, =, 0, ;, i, <, 4, ;, i, ++, ')', '{', j, ++, ;, '}', '}'], []).
+program(Tree, [program, '{', int, i, ;, int, j, ;, j, =, 0, ;, for, '(', i, =, 0, ;, i, <, 4, ;, i, ++, ')', '{', j, ++, ;, '}', '}'], []), eval_program(Tree, [], Env).
