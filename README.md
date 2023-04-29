@@ -10,6 +10,7 @@ In the main folder 'SER502-Spring2023-Team10' run the following command
 ```bash
 python runeva.py <filename>
 ```
+Add your .eva files to '/data' folder to run.
 
 # Example .eva Files
 The example files are stored in the '/data' folder
