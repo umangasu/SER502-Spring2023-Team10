@@ -1,4 +1,2 @@
-\__pycache__
-\venom.egg-info
-\build
-.idea
+.DS_Store
+src/runtime/temp_evaluators/*
