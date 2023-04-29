@@ -60,13 +60,12 @@ variable(t_var_id(Identifier)) --> identifier(Identifier).
 % Assignment Tree
 assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
 assignment(t_assign_str(Identifier, String)) --> identifier(Identifier), [=], string(String).
-assignment(t_assign_bool(Identifier, Boolean)) --> identifier(Identifier), [=], boolean(Boolean).
 assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
 assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
 assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
 
 % Identifier Tree
-identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
+identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, while, range, print, int, float, char, string, bool, in, true, false])}.
 
 %
 integer(t_integer(N)) --> [N], {integer(N)}.
@@ -87,6 +86,7 @@ term(t_div(Term, Factor)) --> term(Term), [/], factor(Factor).
 term(Factor) --> factor(Factor).
 
 factor(Integer) --> integer(Integer).
+factor(Boolean) --> boolean(Boolean).
 factor(Identifier) --> identifier(Identifier).
 factor(t_par('(', Expression, ')')) --> ['('], expression(Expression), [')'].
 
@@ -190,12 +190,6 @@ eval_assign(t_assign_str(Identifier, String), Env, NewEnv) :-
     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
 
-eval_assign(t_assign_bool(Identifier, Boolean), Env, NewEnv) :-
-    get_identifier(Identifier, I),
-    eval_bool(Boolean, Val),
-    ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
-    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
-
 eval_assign(t_assign_ternary(Identifier, Ternary), Env, NewEnv) :-
     get_identifier(Identifier, I),
     eval_ternary(Ternary, Env, Val),
@@ -266,15 +260,15 @@ eval_term(t_div(Term, Factor), Env, Val) :-
 eval_term(Factor, Env, Val) :- eval_factor(Factor, Env, Val).
 
 eval_factor(t_integer(N), _, N) :- eval_integer(t_integer(N), N).
+eval_factor(t_boolean(N), _, N) :- eval_bool(t_boolean(N), N).
 eval_factor(Identifier, Env, Val) :- eval_identifier(Identifier, Env, Val).
 eval_factor(t_par('(', Expression, ')'), Env, Val) :- eval_expr(Expression, Env, Val).
 
 % If Evaluator
 
-eval_if_statement(t_if_parent(Condition, Block, IfStatement1), Env, NEnv) :-
+eval_if_statement(t_if_parent(Condition, Block, _), Env, NEnv) :-
     eval_condition(Condition, Env, true),
-    eval_block(Block, Env, Env1),
-    eval_if_statement1(IfStatement1, Env1, NEnv).
+    eval_block(Block, Env, NEnv).
 
 eval_if_statement(t_if_parent(Condition, _, IfStatement1), Env, NEnv) :-
     eval_condition(Condition, Env, false),
