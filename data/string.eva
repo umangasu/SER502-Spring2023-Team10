@@ -1,0 +1,5 @@
+program {
+    string s;
+    s = "This is string";
+    print("The given string is:", s);
+}

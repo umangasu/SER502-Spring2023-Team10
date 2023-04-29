@@ -1,15 +1,15 @@
 Project Contributions for Milestone 1:
 
-Sambhav Kapoor : Analyzed parsing technqiues and designed grammar of the language.
-Sanket Surendra Kapse : Analyzed parsing tecnhiques and designed grammar of the language.
+Sambhav Kapoor: Analyzed parsing technqiues and designed grammar of the language.
+Sanket Surendra Kapse: Analyzed parsing tecnhiques and designed grammar of the language.
 Soham Prabhakar Patil: Worked on documentation and grammar of the language.
 Sanika Yatin Gandhe: Added documentation and analyzed tokenization tecnhiques for the project.
 Umang Sahastransu: Added documentation and analyzed tokenization tecnhiques for the project.
 
-Project Contributions for Milestone 2:
+Project Contributions for Milestone 2 (Final Submission):
 
-Sambhav Kapoor:
-Sanket Surendra Kapse:
-Soham Prabhakar Patil:
-Sanika Yatin Gandhe:
-Umang Sahastransu:
+Sambhav Kapoor: Contributed in updating the grammar and handling the end to end execution of compile and runtime.
+Sanket Surendra Kapse: Worked on creating grammar, parse tree and evaluator parallelly.
+Soham Prabhakar Patil: Worked on creating grammar, parse tree and evaluator parallelly.
+Sanika Yatin Gandhe: Worked on tokenization of the eva program and also worked on updating the changes in evaluator.
+Umang Sahastransu: Designed and programmed the lexical analysis responsible for tokenization of the eva program
