@@ -4,7 +4,7 @@ program {
     int i;
     int res;
     res = 1;
-    for i in range(1; x){
+    for i in range(1; x) {
         res = res * i;
     }
     print("Factorial of 5 is", res);

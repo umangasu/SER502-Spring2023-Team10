@@ -1,5 +1,4 @@
-program
-{
+program {
     int x;
     x = 12;
     if (x < 10) {

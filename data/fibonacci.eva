@@ -1,5 +1,4 @@
-program
-{ 
+program { 
     int n; 
     n = 0;
     int n1; 
