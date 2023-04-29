@@ -3,7 +3,7 @@ program {
     x = true;
     bool y;
     y = true;
-    if (x == false) {
+    if (! x == false) {
         print("x is", x);
     } else if (y == false) {
         print("y is", y);
