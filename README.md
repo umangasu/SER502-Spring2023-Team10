@@ -12,6 +12,10 @@ python runeva.py <filename>
 ```
 Add your .eva files to '/data' folder to run.
 
+# Intermediate Files
+* Tokens - tokens.evac
+* Parse_Tree - tree.txt
+
 # Example .eva Files
 The example files are stored in the '/data' folder
 eg. factorial.eva, sum.eva, fibonacci.eva, comparison.eva
