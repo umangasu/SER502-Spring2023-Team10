@@ -26,10 +26,8 @@ statement --> print_statement, [;].
 declaration --> type, variable.
 declaration --> type, variable, [','], variable1.
 
-% <type> ::= "int" | "float" | "char" | "string" | "bool"
+% <type> ::= "int" | "string" | "bool"
 type --> [int].
-type --> [float].
-type --> [char].
 type --> [string].
 type --> [bool].
 
@@ -56,10 +54,7 @@ assignment --> identifier, [--].
 identifier --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
 string --> [S], {atom(S)}.
 integer --> [N], {integer(N)}.
-float --> [F], {float(F)}.
 boolean --> [true] | [false].
-boolean --> [!], boolean.
-boolean --> condition.
 
 % <ternary> ::= <condition> "?" <expression> ":" <expression>
 ternary --> condition, [?], expression, [:], expression.
@@ -78,7 +73,6 @@ term --> term, [/], factor.
 term --> factor.
 
 factor --> integer.
-factor --> float.
 factor --> string.
 factor --> boolean.
 
@@ -141,96 +135,3 @@ print_values --> integer, [','], print_values.
 print_values --> integer.
 print_values --> string.
 print_values --> identifier.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-program(t_program(program, '{', Block, '}')) --> [program], ['{'], block(Block), ['}'].
-program(t_program(program, '{', '}')) --> [program], ['{'], ['}'].
-
-block(t_block(Statement)) --> statement(Statement).
-block(t_block(Block, Statement)) --> block(Block), statement(Statement).
-
-statement(t_statement(Declaration, ;)) --> declaration(Declaration), [;].
-statement(t_statement(Assignment, ;)) --> assignment(Assignment), [;].
-statement(t_statement(PrintStatement, [;])) --> print_statement(PrintStatement), [;].
-statement(t_statement(IfStatement)) --> if_statement(IfStatement).
-statement(t_statement(WhileLoop)) --> while_loop(WhileLoop).
-statement(t_statement(ForLoop)) --> for_loop(ForLoop).
-statement(t_statement(ForRange)) --> for_range(ForRange).
-
-declaration(t_declaration(Type, Variable)) --> type(Type), variable(Variable).
-declaration(t_declaration(Type, Variable, ',', Variable1)) --> type(Type), variable(Variable), [','], variable1(Variable1).
-
-type(t_type(int)) --> [int].
-type(t_type(float)) --> [float].
-type(t_type(char)) --> [char].
-type(t_type(string)) --> [string].
-type(t_type(bool)) --> [bool].
-
-variable(t_variable(Identifier)) --> identifier(Identifier).
-variable(t_variable(Assignment)) --> assignment(Assignment).
-
-variable1(t_variable1(Variable, ',', Variable1)) --> variable(Variable), [','], variable1(Variable1).
-variable1(t_variable1(Variable)) --> variable(Variable).
-
-assignment(t_assignment(Identifier, =, Expression)) --> identifier(Identifier), [=], expression(Expression).
-assignment(t_assignment(Identifier, =, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
-assignment(t_assignment(Identifier, ++)) --> identifier(Identifier), [++].
-assignment(t_assignment(Identifier, --)) --> identifier(Identifier), [--].
-
-identifier(t_identifier(I)) --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
-string(t_string(S)) --> ['"'], [S], ['"'], {atom(S)}.
-integer(t_integer(N)) --> [N], {integer(N)}.
-float(t_float(F)) --> [F], {float(F)}.
-boolean(t_boolean(true, false)) --> [true] | [false].
-boolean(t_boolean(!, Boolean)) --> [!], boolean(Boolean).
-
-ternary(t_ternary(Condition, Expression1, Expression2)) --> condition(Condition), [?], expression(Expression1), [:], expression(Expression2).
-
-expression(t_expression(Expression, +, Term)) --> expression(Expression), [+], term(Term).
-expression(t_expression(Expression, -, Term)) --> expression(Expression), [-], term(Term).
-expression(t_expression(Term)) --> term(Term).
-
-term(t_term(Term, *, Factor)) --> term(Term), [*], factor(Factor).
-term(t_term(Term, /, Factor)) --> term(Term), [/], factor(Factor).
-term(t_term(Factor)) --> factor(Factor).
-factor(Integer) --> integer(Integer).
-factor(Float) --> float(Float).
-factor(Boolean) --> boolean(Boolean).
-factor(String) --> string(String).
-factor(Identifier) --> identifier(Identifier).
-
-factor(t_factor('(', Expression, ')')) --> ['('], expression(Expression), [')'].
-
-if_statement(t_if_statement(if, '(', Condition, ')', '{', Block, '}', IfStatement1)) --> [if], ['('], condition(Condition), [')'], ['{'], block(Block), ['}'], if_statement1(IfStatement1).
-if_statement1(t_if_statement1()) --> [].
-if_statement1(t_if_statement1(else, '{', Block, '}')) --> [else], ['{'], block(Block), ['}'].
-if_statement1(t_if_statement1(else, IfStatement)) --> [else], if_statement(IfStatement).
-
-condition(t_condition(Expression1, RelationOp, Expression2)) --> expression(Expression1), relation_op(RelationOp), expression(Expression2).
-condition(t_condition(Condition1, LogicalOp, Condition1)) --> condition(Condition1), logical_op(LogicalOp), condition(Condition1).
-condition(t_condition(Boolean)) --> boolean(Boolean).
-
-relation_op(t_relation_op(<)) --> [<].
-relation_op(t_relation_op(<=)) --> [<=].
-relation_op(t_relation_op(>)) --> [>].
-relation_op(t_relation_op(>=)) --> [>=].
-relation_op(t_relation_op(==)) --> [==].
-relation_op(t_relation_op('!=')) --> ['!='].
-
-logical_op(t_logical_op('&&')) --> ['&&'].
-logical_op(t_logical_op('||')) --> ['||'].
-
-while_loop(t_while_loop(while, '(', Condition, ')', '{', Block, '}')) --> [while], ['('], condition(Condition), [')'], ['{'], block(Block), ['}'].
-for_loop(t_for_loop(for, '(', Identifier, =, ForInteger, ;, Condition, ;, Assignment, ')', '{', Block, '}')) --> [for], ['('], identifier(Identifier), [=], for_integer(ForInteger), [;], condition(Condition), [;], assignment(Assignment), [')'], ['{'], block(Block), ['}'].
-for_range(t_for_range(for, Identifier, in, range, '(', ForInteger1, ',', ForInteger2, ')', '{', Block, '}')) --> [for], identifier(Identifier), [in], [range], ['('], for_integer(ForInteger1), [','], for_integer(ForInteger2), [')'], ['{'], block(Block), ['}'].
-for_integer(t_for_integer(Integer)) --> integer(Integer).
-for_integer(t_for_integer(Identifier)) --> identifier(Identifier).
-
-print_statement(t_print_statement(print, '(', PrintValues, ')')) --> [print], ['('], print_values(PrintValues), [')'].
-print_values(t_print_values(Identifier, ',', PrintValues)) --> identifier(Identifier), [','], print_values(PrintValues).
-print_values(t_print_values(String, ',', PrintValues)) --> string(String), [','], print_values(PrintValues).
-print_values(t_print_values(Integer, ',', PrintValues)) --> integer(Integer), [','], print_values(PrintValues).
-print_values(t_print_values(Integer)) --> integer(Integer).
-print_values(t_print_values(Identifier)) --> identifier(Identifier).
-print_values(t_print_values(String)) --> string(String).
