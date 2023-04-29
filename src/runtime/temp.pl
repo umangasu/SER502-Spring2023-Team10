@@ -60,7 +60,6 @@ variable(t_var_id(Identifier)) --> identifier(Identifier).
 % Assignment Tree
 assignment(t_assign_expr(Identifier, Expression)) --> identifier(Identifier), [=], expression(Expression).
 assignment(t_assign_str(Identifier, String)) --> identifier(Identifier), [=], string(String).
-assignment(t_assign_bool(Identifier, Boolean)) --> identifier(Identifier), [=], boolean(Boolean).
 assignment(t_assign_ternary(Identifier, Ternary)) --> identifier(Identifier), [=], ternary(Ternary).
 assignment(t_assign_plus(Identifier)) --> identifier(Identifier), [++].
 assignment(t_assign_minus(Identifier)) --> identifier(Identifier), [--].
@@ -188,12 +187,6 @@ eval_assign(t_assign_expr(Identifier, Expression), Env, NewEnv) :-
 eval_assign(t_assign_str(Identifier, String), Env, NewEnv) :-
     get_identifier(Identifier, I),
     eval_string(String, Val),
-    ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
-    (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
-
-eval_assign(t_assign_bool(Identifier, Boolean), Env, NewEnv) :-
-    get_identifier(Identifier, I),
-    eval_bool(Boolean, Val),
     ((check_in_env(I, Env), update(_, I, Val, Env, NewEnv));
     (\+ check_in_env(I, Env) , write("Variable do not exist"), fail)).
 
