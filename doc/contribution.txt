@@ -8,8 +8,10 @@ Umang Sahastransu: Added documentation and analyzed tokenization tecnhiques for 
 
 Project Contributions for Milestone 2 (Final Submission):
 
-Sambhav Kapoor: Contributed in updating the grammar and handling the end to end execution of compile and runtime.
-Sanket Surendra Kapse: Worked on creating grammar, parse tree and evaluator parallelly.
+Sambhav Kapoor: Contributed in updating the grammar and handling the end to end execution of compile and runtime with the help of intermediate files.
+Sanket Surendra Kapse: Worked on creating grammar, parse tree and evaluator parallelly. 
+                       Worked on print statement, if else, while and for range and for loop parse tree generator as well as evaluator.
 Soham Prabhakar Patil: Worked on creating grammar, parse tree and evaluator parallelly.
+                       Worked on program, block, statement, declare, assignment, and ternary parse tree generator as well as evaluator. 
 Sanika Yatin Gandhe: Worked on tokenization of the eva program and also worked on updating the changes in evaluator.
 Umang Sahastransu: Designed and programmed the lexical analysis responsible for tokenization of the eva program
