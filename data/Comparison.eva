@@ -1,0 +1,12 @@
+program
+{
+    int x;
+    x = 12;
+    if (x < 10) {
+        print("Less than 10");
+    } else if (x > 10) {
+        print("Greater than 10");
+    } else {
+        print("Equal to 10");
+    }
+}

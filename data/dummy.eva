@@ -1,6 +1,0 @@
-program {
-    int x = 8;
-    int y;
-    int z;
-    z = 0;
-}
