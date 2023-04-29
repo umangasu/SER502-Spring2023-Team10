@@ -5,3 +5,11 @@ Sanket Surendra Kapse : Analyzed parsing tecnhiques and designed grammar of the 
 Soham Prabhakar Patil: Worked on documentation and grammar of the language.
 Sanika Yatin Gandhe: Added documentation and analyzed tokenization tecnhiques for the project.
 Umang Sahastransu: Added documentation and analyzed tokenization tecnhiques for the project.
+
+Project Contributions for Milestone 2:
+
+Sambhav Kapoor:
+Sanket Surendra Kapse:
+Soham Prabhakar Patil:
+Sanika Yatin Gandhe:
+Umang Sahastransu:
