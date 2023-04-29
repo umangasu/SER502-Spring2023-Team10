@@ -6,6 +6,7 @@
 :- table block/3.
 :- table condition/3.
 
+program --> [program], ['{'], ['}'].
 program --> [program], ['{'], block , ['}'].
 
 % <block> ::= <statement> | <statement> <block>
@@ -22,9 +23,8 @@ statement --> for_loop.
 statement --> for_range.
 statement --> print_statement, [;].
 
-% <declaration> ::= <type> <variable> | <type> <variable> "," <variable1>
+% <declaration> ::= <type> <variable>
 declaration --> type, variable.
-declaration --> type, variable, [','], variable1.
 
 % <type> ::= "int" | "string" | "bool"
 type --> [int].
@@ -35,12 +35,9 @@ type --> [bool].
 variable --> identifier.
 variable --> assignment.
 
-% <variable1> ::= <variable> "," <variable1> | <variable>
-variable1 --> variable, [','], variable1.
-variable1 --> variable.
-
 % <assignment> ::= <identifier> "=" <expression> | <identifier> "=" <ternary>
 assignment --> identifier, [=], expression.
+assignment --> identifier, [=], string.
 assignment --> identifier, [=], ternary.
 assignment --> identifier, [++].
 assignment --> identifier, [--].
@@ -50,7 +47,7 @@ assignment --> identifier, [--].
 % <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 % <integer> ::= <digit> | <digit> <integer>
 % <float> ::= <integer> "." <integer>
-% <bool> ::= True | False | "!" <bool> | <condition>
+% <bool> ::= True | False | <condition>
 identifier --> [I], {atom(I), \+ member(I, [program, for, if, else, for, while, range, print, int, float, char, string, bool, in])}.
 string --> [S], {atom(S)}.
 integer --> [N], {integer(N)}.
@@ -62,7 +59,7 @@ ternary --> condition, [?], expression, [:], expression.
 % <expression> ::= <expression> + <expression> | <expression> - <expression>  
 % | <expression> * <expression> | <expression> / <expression>
 % | (<expression>) | <integer> | <float> | <identifier> | <identifier> "++" 
-% | <identifier> "--" | <string> | <booleam>
+% | <identifier> "--" | <string>
 
 expression --> expression, [+], term.
 expression --> expression, [-], term.
@@ -74,7 +71,6 @@ term --> factor.
 
 factor --> integer.
 factor --> string.
-factor --> boolean.
 
 factor --> identifier.
 
@@ -97,6 +93,8 @@ if_statement1 --> [else], if_statement.
 
 condition --> expression, relation_op, expression.
 condition --> condition, logical_op, condition.
+condition --> boolean.
+condition --> [!], condition.
 
 
 % <relation_op> ::= "<" | "<=" | ">" | ">=" | "==" | "!="
@@ -120,7 +118,7 @@ logical_op --> ['||'].
 
 while_loop --> [while], ['('], condition, [')'], ['{'], block, ['}'].
 for_loop --> [for], ['('], identifier, [=], for_integer, [;], condition, [;], assignment, [')'], ['{'], block, ['}'].
-for_range --> [for], identifier, [in], [range], ['('], for_integer, [','], for_integer, [')'], ['{'], block, ['}'].
+for_range --> [for], identifier, [in], [range], ['('], for_integer, [';'], for_integer, [')'], ['{'], block, ['}'].
 for_integer --> integer.
 for_integer --> identifier.
 
