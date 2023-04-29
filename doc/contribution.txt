@@ -8,7 +8,7 @@ Umang Sahastransu: Added documentation and analyzed tokenization tecnhiques for 
 
 Project Contributions for Milestone 2 (Final Submission):
 
-Sambhav Kapoor: Contributed in updating the grammar and handling the end to end execution of compile and runtime with the help of intermediate files.
+Sambhav Kapoor: Contributed in updating the grammar and tokenization. Worked on the end to end execution of compile and runtime with the help of intermediate files.
 Sanket Surendra Kapse: Worked on creating grammar, parse tree and evaluator parallelly. 
                        Worked on print statement, if else, while and for range and for loop parse tree generator as well as evaluator.
 Soham Prabhakar Patil: Worked on creating grammar, parse tree and evaluator parallelly.
