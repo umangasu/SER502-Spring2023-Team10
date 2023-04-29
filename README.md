@@ -2,6 +2,7 @@
 
 # Prerequisites
   Python3
+
   Prolog (swipl)
   
 # How To Run
