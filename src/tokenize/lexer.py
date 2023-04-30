@@ -1,3 +1,8 @@
+# Author - Umang Sahastransu, Sanika Yatin Gandhe
+# Purpose - Lexical Analysing
+# Version - Final
+# Date - 29 April 2023
+
 import os.path
 import re
 from _path import ROOT_DIRECTORY

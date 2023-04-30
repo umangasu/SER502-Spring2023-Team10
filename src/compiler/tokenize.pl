@@ -1,3 +1,8 @@
+% Author - Sambhav Kapoor
+% Purpose - Token Handling and Output Generation
+% Version - Final
+% Date - 29 April 2023
+
 consult_file(File) :-
     consult(File).
 

@@ -1,3 +1,8 @@
+% Author - Sanket Surendra Kapse, Soham Prabhakar Patil, Sambhav Kapoor
+% Purpose - Grammar File
+% Version - Final
+% Date - 29 April 2023
+
 :- table block/2.
 :- table expression/2.
 :- table term/2.
